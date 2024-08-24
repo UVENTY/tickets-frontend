@@ -1,0 +1,203 @@
+@import '../../../mixins.scss';
+
+.scheme-viewport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 150px;
+  overflow: hidden;
+  position: relative;
+  
+  @include bp(device) {
+    height: calc(100% - 75px - 150px);
+    margin: 75px 0 120px;
+  }
+  
+  /* &:before {
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 3px;
+    background-color: red;
+    position: absolute;
+    z-index: 100000;
+    content: '';
+  } */
+}
+
+.scheme-draggable {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  touch-action: none;
+  will-change: transform;
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  padding: 40px;
+  box-sizing: border-box;
+
+  &_base {
+    width: 100%;
+    height: 100%;
+
+    svg {
+      width: calc(100% - 40px);
+      height: calc(100% - 40px);
+    }
+  }
+}
+
+.scheme-svg {
+  touch-action: none;
+  transition: ease-in-out .2s;
+  transition-property: transform, width, height;
+  will-change: width, height;
+  width: auto;
+  height: 100%;
+
+  /* @include bp(device) {
+    & > g > * {
+      transition: ease-in-out 2s filter;
+    }
+  
+    // TODO Не работает на маке. Заменить логику, блюрить не элементы внутри свг,
+    // а выводить наложение с backdrop-filter: blur. Активнй кружок места выыводить
+    // поверх наожения за пределами свг
+    &:has(.svg-seat-clone) > g > * {
+      // filter: blur(2px) brightness(0.7);
+      filter: url(#filter-blur);
+      opacity: 0.5;
+    }
+  } */
+}
+
+.scheme-overlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  background-color: #00000033;
+  pointer-events: none;
+  opacity: 0;
+  transition: ease-in-out .2s opacity;
+
+  @include bp(device) {
+    &_visible {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes blurIn {
+  0% {
+    filter: blur(2px) brightness(0.7);
+  }
+  100% {
+    filter: blur(0) brightness(1);
+  }
+}
+
+.svg-seat-clone {
+  animation: blurIn 0.3s ease-in-out;
+}
+
+.scheme-reset {
+  position: absolute;
+  z-index: 50;
+  right: 16px;
+  top: 16px;
+
+  @include bp(device) {
+    top: 12px;
+    right: 10px;
+    margin: 0;
+  }
+}
+
+
+.scheme-reset-categories {
+  position: absolute;
+  z-index: 50;
+  left: 16px;
+  bottom: 16px;
+}
+
+.scheme-zoom {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 50;
+
+  @include bp(device) {
+    top: 96px;
+    display: none;
+  }
+}
+
+.scheme-control {
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  max-height: none;
+  padding: 0;
+  border: 1px solid var(--color-gray-7);
+  color: var(--color-gray-2-alpha);
+  background-color: var(--color-gray-7);
+  box-sizing: border-box;
+  pointer-events: all;
+  transition: ease-in-out .3s background-color;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0.95px 2.86px 6.68px 0px rgba(0, 0, 0, 0.1019607843), 4.77px 11.44px 12.4px 0px rgba(0, 0, 0, 0.0901960784), 11.44px 24.8px 16.21px 0px rgba(0, 0, 0, 0.0509803922), 20.98px 43.87px 19.07px 0px rgba(0, 0, 0, 0.0117647059), 32.43px 68.67px 20.98px 0px rgba(0, 0, 0, 0);
+
+  &:has(+ &) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+  }
+
+  & + & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  
+  &_hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:hover {
+    color: var(--color-gray-2);
+    border-color: var(--color-gray-9);
+    background-color: var(--color-gray-9);
+  }
+
+  &-large {
+    width: auto;
+    height: auto;
+    padding: 5px 9px;
+    text-transform: uppercase;
+    font-size: 12px;
+    line-height: 14px;
+    text-align: right;
+    font-weight: 300;
+    position: relative;
+
+    svg {
+      position: absolute;
+      left: 10px;
+      top: 8px;
+    }
+  }
+}
+
+.simple-impudent-logo {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 50;
+}

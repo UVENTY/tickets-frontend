@@ -1,0 +1,16 @@
+.svg-counter {
+  position: absolute;
+  z-index: 50;
+  margin-top: -25px;
+  /* transform: translateX(-50%); */
+  opacity: 0;
+  transition: ease .3s;
+  transition-property: opacity, margin-top;
+}
+
+.svg-counter.visible {
+  /* margin-top: -5px;
+  transform: translateX(-50%); */
+  margin-top: 0;
+  opacity: 1;
+}
