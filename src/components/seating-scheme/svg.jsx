@@ -15,8 +15,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const [counters, setCounters] = useState([])
   const [tooltipSeat, setTooltipSeat] = useState({ visible: false })
   const [wrapperSize, setWrapperSize] = useState({ width: 'auto', height: '100%' })
-  const [showOverlay, setShowOverlay] = useState(false)
-  const { src, categories, cart, highlight, tickets, toggleInCart } = props
+  const [activeSeat, setActiveSeat] = useState(null)
+  const { src, categories, cart, highlight, tickets, viewport, toggleInCart } = props
   const ref = useRef(null)
   const { zoomIn } = useControls()
   useImperativeHandle(outerRef, () => ref.current)
@@ -36,7 +36,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
     let dy = ((elBounds.y - y) + elBounds.height)
     
     const seat = svgSeat(el)
-    console.log(seat.get('ticket-id'));
     setTooltipSeat({
       visible: true,
       x: `${(dx / width) * 100}%`,
@@ -45,12 +44,15 @@ const SvgScheme = forwardRef((props, outerRef) => {
       text: seat.get('text'),
       delay: null
     })
-    setShowOverlay(true)
+
+    const marker = el.getBBox()
+    marker.Tag = el.tagName?.toLowerCase()
+    setActiveSeat(marker)
   }
 
   const hideSeatTooltip = (delay) => {
     setTooltipSeat(prev => ({ ...prev, delay, visible: false }))
-    setShowOverlay(false)
+    setActiveSeat(null)
   }
 
   /* Обновление счетчиков билетов в корзине для всяких танцполов */
@@ -150,6 +152,25 @@ const SvgScheme = forwardRef((props, outerRef) => {
         }
       }
     })
+
+    
+    const viewBox = (node.getAttribute('viewBox') || '').split(' ')
+    const [x1, y1, x2, y2] = viewBox.map(Number) || []
+    const svgWidth = x2 - x1
+    const svgHeight = y2 - y1
+    const { width: w, height: h } = viewport || {}
+    let rw = svgWidth
+    let rh = svgHeight
+    // Высота 100% ширина автоматически
+    if (w/h > svgWidth / svgHeight) {
+      rh = h - 40
+      rw = (svgWidth / svgHeight) * rh
+    } else {
+      rw = w - 40
+      rh = (svgHeight / svgWidth) * rw
+    }
+    ref.current.style.width = rw
+    ref.current.style.height = rh
   }, [src])
 
   /* Обновить чекбоксы на местах */
@@ -169,7 +190,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
   /* Обработка клик на месте */
   useEffect(() => {
     const svgEl = ref.current
-    const hammer = new Hammer(svgEl)
+    //const hammer = new Hammer(svgEl)
     const handleTap = (event) => {
       if (context?.transformState?.scale && context.transformState.scale < 1.5) {
         zoomIn()
@@ -192,7 +213,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           // Если у элемента есть галочка, то копируем и ее
           if (el.nextElementSibling.tagName?.toLowerCase() === 'use') clone.push(el.nextElementSibling.cloneNode())
           clone.forEach((el, i) => {
-            el.id = `clone-${(i + 1)}`
+              el.id = `clone-${(i + 1)}`
             el.classList.add(SEAT_CLONE_CLASS)
             ref.current.appendChild(el)
           })
@@ -206,11 +227,11 @@ const SvgScheme = forwardRef((props, outerRef) => {
         document.querySelectorAll('#clone-1, #clone-2').forEach(el => el.remove())
       }
     }
-    hammer.on('tap', handleTap)
+    //hammer.on('tap', handleTap)
 
     return () => {
-      hammer.off('tap', handleTap)
-      hammer.destroy()
+      //hammer.off('tap', handleTap)
+      //hammer.destroy()
     }
   }, [ticketsByCategory, tickets, tooltipSeat, zoomIn, context?.transformState?.scale])
 
@@ -254,19 +275,29 @@ const SvgScheme = forwardRef((props, outerRef) => {
     el.innerHTML = msg + "<br>" + el.innerHTML
   })
 
+  const { Tag: MarkerTag, ...markerProps } = activeSeat || {}
+
   return (
     <>
-      <TransformComponent
-        onPinching={() => {
-          log('pinching')
-        }}
-      >
+      <TransformComponent>
         <div
           className='scheme-wrapper'
           id='svg-wrapper'
           style={wrapperSize}
         >
-          <div className={classNames('scheme-overlay', { ['scheme-overlay_visible']: showOverlay })} />
+          <div className={classNames('scheme-overlay', { ['scheme-overlay_visible']: activeSeat })}>
+            {activeSeat &&
+              <svg
+                id='active-seat'
+                viewBox={`${activeSeat.x} ${activeSeat.y} ${activeSeat.x + activeSeat.width} ${activeSeat.y + activeSeat.height}`}
+                width={activeSeat.width}
+                height={activeSeat.height}
+                style={{ position: 'absolute', left: activeSeat.x, top: activeSeat.y }}
+              >
+                <MarkerTag {...markerProps} />
+              </svg>
+            }
+          </div>
           <svg
             className='scheme-svg'
             ref={ref}

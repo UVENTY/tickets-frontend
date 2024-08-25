@@ -21,6 +21,7 @@
   &_visible {
     // pointer-events: all;
     opacity: 1;
+    transform: translate(-100%, 5px);
 
     @media (max-width: 1023px) {
       pointer-events: all;

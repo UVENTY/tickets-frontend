@@ -7,7 +7,7 @@ import { cn } from '@bem-react/classname'
 import Button from "components/button";
 import TicketsCounter from "components/tickets-counter";
 import CategorySelector from "components/category-selector";
-import SeatingScheme from "components/seating-scheme-2";
+import SeatingScheme from "components/seating-scheme";
 import Countdown from "components/countdown/countdown";
 import Cart from "components/cart";
 import CartModal from "components/modal/modal";
@@ -35,42 +35,22 @@ export default function Event() {
   const [highlightCat, setHighlightCat] = useState(null)
   const [orderExpanded, setOrderExpanded] = useState(false)
   const [cartModal, setCartModal] = useState(false)
+  const [viewport, setViewport] = useState(null)
 
   const ref = useClickAway(() => setSelectOpened(false))
   const cartRef = useRef(false)
+  const schemeRef = useRef(null)
+
+  useEffect(() => {
+    const el = schemeRef.current
+    if (!el) return
+    const viewport = el.getBoundingClientRect()
+    setViewport(viewport)
+  }, [])
 
   useLayoutEffect(() => {
     const isDesktop = window.innerWidth > 1023
     setSelectOpened(isDesktop)
-  }, [])
-
-  useEffect(() => {
-    const isMobile = window.innerWidth <= 1023
-    console.log(isMobile, cartRef.current)
-    if (isMobile && cartRef.current) {
-      const select = new Hammer(ref.current)
-      select.get('swipe').set({ domEvents: true, enable: true })
-      select.on('swipedown', () => {
-        setOrderExpanded(false)
-        setSelectOpened(true)
-      })
-      select.on('swipeup', () => setSelectOpened(false))
-      
-      const cart = new Hammer(cartRef.current)
-      cart.get('swipe').set({ domEvents: true })
-      cart.on('swipeup', () => {
-        console.log('swipeup cart');
-
-        setOrderExpanded(true)
-        setSelectOpened(false)
-      })
-      cart.on('swipedown', () => setOrderExpanded(false))
-
-      return () => {
-        select.off('swipedown swipeup')
-        cart.off('swipeup swipedown')
-      }
-    }
   }, [])
   
   useEffect(() => {
@@ -108,9 +88,9 @@ export default function Event() {
   
   return (
     <div className={bem('layout')}>
-      <div className={bem('scheme')}>
+      <div className={bem('scheme')} ref={schemeRef}>
         <Countdown to={bookingLimit} className={bem('countdown')} />
-        <SeatingScheme
+        {!!viewport && <SeatingScheme
           src={scheme}
           categories={categories}
           highlight={highlightCat || selectValue}
@@ -119,12 +99,13 @@ export default function Event() {
           cart={cartByCategory}
           tickets={tickets || EMPTY_ARRAY}
           toggleInCart={toggleInCart.mutate}
-        />
+          viewport={viewport}
+        />}
       </div>
       <div className={classNames(bem('sidebar'), bem('categories'))} ref={ref}>
         <h2 className={bem('title')}>select a category:</h2>
         <CategorySelector
-          defaultCurrency={config?.currency}
+          defaultCurrency={config?.currency}www
           value={selectValue}
           options={categories}
           opened={selectOpened}

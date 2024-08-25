@@ -1,5 +1,1 @@
-//export { default } from './seating-scheme'
-
-export default function() {
-  return null
-}
+export { default } from './seating-scheme'
