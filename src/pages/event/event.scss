@@ -25,21 +25,26 @@
   }
 
   &-scheme {
-    width: calc(100% - var(--sidebar-width) - 60px);
+    width: calc(100% - var(--sidebar-width) - 20px);
     flex-basis: 100%;
     border: 1px solid #F8F5EC1A;
     border-radius: var(--layout-radius);
     position: relative;
     overflow: hidden;
-
+    // padding: 50px;
+    
     @include bp(device) {
+      padding: 0;
       width: 100%;
-      height: 100%;
+      height: auto;
       border: none;
+      margin-top: 75px;
+      margin-bottom: 150px;
     }
   }
 
   &-sidebar {
+    box-sizing: border-box;
     width: var(--sidebar-width);
     background-color: var(--color-gray-9);
     border-radius: var(--layout-radius);
@@ -139,7 +144,6 @@
     transform: translateX(-50%);
 
     @include bp(device) {
-      top: 70px;
       padding: 0 8px;
 
       span {

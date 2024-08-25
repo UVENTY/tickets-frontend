@@ -7,7 +7,7 @@ import { cn } from '@bem-react/classname'
 import Button from "components/button";
 import TicketsCounter from "components/tickets-counter";
 import CategorySelector from "components/category-selector";
-import SeatingScheme from "components/seating-scheme";
+import SeatingScheme from "components/seating-scheme-2";
 import Countdown from "components/countdown/countdown";
 import Cart from "components/cart";
 import CartModal from "components/modal/modal";

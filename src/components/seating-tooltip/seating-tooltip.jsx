@@ -37,7 +37,7 @@ export default function SeatingTooltip(props) {
     }
   }, [props.visible, props.hideDelay])
 
-  if (props.scaleFactor && props.scaleFactor < 1) {
+  if (props.scale && props.scale < 1) {
     return null
   }
   const cat = props.categories.find((c) => c.value === props.category);
@@ -53,37 +53,39 @@ export default function SeatingTooltip(props) {
       data-visible={visible}
       data-ticket={props.ticketId}
     >
-      <div className={bem('head')}>
-        <div className={bem('price')}>
-          {props?.price || '-'}&nbsp;{CURRENCY_SYMBOL_MAP[props?.currency] || ''}
+      <div style={{ transform: `scale(${1 / props.scale})` }}>
+        <div className={bem('head')}>
+          <div className={bem('price')}>
+            {props?.price || '-'}&nbsp;{CURRENCY_SYMBOL_MAP[props?.currency] || ''}
+          </div>
+          {!!svg && <div
+            className={bem('icon')}
+            style={{ color }}
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />}
         </div>
-        {!!svg && <div
-          className={bem('icon')}
-          style={{ color }}
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />}
-      </div>
-      <div className={bem('desc')} style={{ color }}>
-        <div className={bem('category')}>{cat?.name || props.category}</div>
-        {!!props.text && <div className={bem('text')}>{props.text}</div>}
-      </div>
-      <div className={bem('seat')}>
-        <div className={bem('row')}>
-          <span>Row:</span> {props.row}
+        <div className={bem('desc')} style={{ color }}>
+          <div className={bem('category')}>{cat?.name || props.category}</div>
+          {!!props.text && <div className={bem('text')}>{props.text}</div>}
         </div>
-        <div className={bem('num')}>
-          <span>Seat:</span> {props.seat}
+        <div className={bem('seat')}>
+          <div className={bem('row')}>
+            <span>Row:</span> {props.row}
+          </div>
+          <div className={bem('num')}>
+            <span>Seat:</span> {props.seat}
+          </div>
         </div>
+        <button
+          className={bem('button', { selected: props.inCart })}
+          style={{
+            backgroundColor: props.inCart ? color : undefined,
+            borderColor: props.inCart ? color : undefined
+          }}
+        >
+          {props.inCart ? <><Selected style={{ width: 12 }} /> Selected</> : `${isMobile ? 'Tap' : 'Click'} to select`}
+        </button>
       </div>
-      <button
-        className={bem('button', { selected: props.inCart })}
-        style={{
-          backgroundColor: props.inCart ? color : undefined,
-          borderColor: props.inCart ? color : undefined
-        }}
-      >
-        {props.inCart ? <><Selected style={{ width: 12 }} /> Selected</> : `${isMobile ? 'Tap' : 'Click'} to select`}
-      </button>
     </div>
   )
 }
