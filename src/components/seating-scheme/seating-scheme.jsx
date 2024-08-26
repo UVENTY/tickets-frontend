@@ -13,13 +13,14 @@ import Controls from './controls'
 import SvgScheme from './svg'
 
 const SeatingScheme = forwardRef((props, ref) => {
+  const svgRef = useRef(null)
   const { src, cart, categories, tickets, toggleInCart, highlight, selectedCategory, resetSelectedCategory, viewport } = props
 
   return (
     <TransformWrapper
       minScale={0.8}
       maxScale={4}
-      initialScale={0.8}
+      initialScale={1}
       doubleClick={{
         disabled: true
       }}
@@ -32,6 +33,7 @@ const SeatingScheme = forwardRef((props, ref) => {
         tickets={tickets}
         toggleInCart={toggleInCart}
         viewport={viewport}
+        ref={svgRef}
       />
       <Controls
         selectedCategory={selectedCategory}

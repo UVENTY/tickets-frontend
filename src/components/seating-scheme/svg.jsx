@@ -8,6 +8,12 @@ import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
 import classNames from 'classnames'
 
+function log(...args) {
+  const el = document.getElementById('log')
+  const text = args.map((arg) => JSON.stringify(arg)).join(' ')
+  el.innerHTML = text + "<br>" + el.innerHTML
+}
+
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
 
@@ -44,10 +50,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
       text: seat.get('text'),
       delay: null
     })
-
-    const marker = el.getBBox()
-    marker.Tag = el.tagName?.toLowerCase()
-    setActiveSeat(marker)
   }
 
   const hideSeatTooltip = (delay) => {
@@ -105,17 +107,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
     createStyles(svg, categories)
 
     if (node.hasChildNodes()) node.innerHTML = ''
-    const width = Number(svg.attributes?.width?.value)
-    const height = Number(svg.attributes?.height?.value)
-
-    const el = document.querySelector('#svg-wrapper')
-    if (width && height && el) {
-      const ratio = width / height
-      const elHeight = el.clientHeight
-      const elWidth = elHeight * ratio
-      setWrapperSize({ width: elWidth, height: '100%' })
-    }
-
     let timer = null
 
     Array.from(svg.attributes).forEach(({ name, value }) => ['width', 'height'].includes(name) ?
@@ -153,7 +144,13 @@ const SvgScheme = forwardRef((props, outerRef) => {
       }
     })
 
-    
+    const fobj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+    fobj.setAttribute('width', '100%')
+    fobj.setAttribute('height', '100%')
+    fobj.id = 'svg-overlay'
+    fobj.innerHTML = '<div class="scheme-overlay"></div>'
+    node.appendChild(fobj)
+
     const viewBox = (node.getAttribute('viewBox') || '').split(' ')
     const [x1, y1, x2, y2] = viewBox.map(Number) || []
     const svgWidth = x2 - x1
@@ -163,14 +160,15 @@ const SvgScheme = forwardRef((props, outerRef) => {
     let rh = svgHeight
     // Высота 100% ширина автоматически
     if (w/h > svgWidth / svgHeight) {
-      rh = h - 40
+      rh = h
       rw = (svgWidth / svgHeight) * rh
     } else {
-      rw = w - 40
+      rw = w
       rh = (svgHeight / svgWidth) * rw
     }
-    ref.current.style.width = rw
-    ref.current.style.height = rh
+    /* ref.current.style.width = rw
+    ref.current.style.height = rh */
+    setWrapperSize({ width: rw, height: rh })
   }, [src])
 
   /* Обновить чекбоксы на местах */
@@ -190,8 +188,9 @@ const SvgScheme = forwardRef((props, outerRef) => {
   /* Обработка клик на месте */
   useEffect(() => {
     const svgEl = ref.current
-    //const hammer = new Hammer(svgEl)
+    const hammer = new Hammer(svgEl)
     const handleTap = (event) => {
+      log('tap', context?.transformState?.scale)
       if (context?.transformState?.scale && context.transformState.scale < 1.5) {
         zoomIn()
       }
@@ -204,6 +203,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
       const ticketsCat = ticketsByCategory?.[seatCat] || []
       const ticket = isMultiple && ticketsCat ? ticketsCat.find(item => !item.inCart) : tickets.find(t => t.id === el.id)
       const { visible, ticketId } = tooltipSeat
+      const overlay = svgEl.querySelector('#svg-overlay div')
 
       if (ticket && !el.hasAttribute('data-disabled')) {
         Array.from(document.querySelectorAll('#clone-1, #clone-2')).forEach(el => el.remove())
@@ -213,25 +213,27 @@ const SvgScheme = forwardRef((props, outerRef) => {
           // Если у элемента есть галочка, то копируем и ее
           if (el.nextElementSibling.tagName?.toLowerCase() === 'use') clone.push(el.nextElementSibling.cloneNode())
           clone.forEach((el, i) => {
-              el.id = `clone-${(i + 1)}`
+            el.id = `clone-${(i + 1)}`
             el.classList.add(SEAT_CLONE_CLASS)
             ref.current.appendChild(el)
           })
+          overlay.classList.add('scheme-overlay_visible')
           showSeatTooltip(el)
         } else {
           toggleInCart(ticket)
         }
       } else {
         const delay = el.matches('.seating-tooltip') || el.closest('.seating-tooltip') ? 500 : 0
-        setTooltipSeat(prev => ({ visible: false, ticketId: prev.ticketId, delay }))
+        hideSeatTooltip(0)
+        overlay.classList.remove('scheme-overlay_visible')
         document.querySelectorAll('#clone-1, #clone-2').forEach(el => el.remove())
       }
     }
-    //hammer.on('tap', handleTap)
+    hammer.on('tap', handleTap)
 
     return () => {
-      //hammer.off('tap', handleTap)
-      //hammer.destroy()
+      hammer.off('tap', handleTap)
+      hammer.destroy()
     }
   }, [ticketsByCategory, tickets, tooltipSeat, zoomIn, context?.transformState?.scale])
 
@@ -285,7 +287,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           id='svg-wrapper'
           style={wrapperSize}
         >
-          <div className={classNames('scheme-overlay', { ['scheme-overlay_visible']: activeSeat })}>
+          {/* <div className={classNames('scheme-overlay', { ['scheme-overlay_visible']: activeSeat })}>
             {activeSeat &&
               <svg
                 id='active-seat'
@@ -297,10 +299,11 @@ const SvgScheme = forwardRef((props, outerRef) => {
                 <MarkerTag {...markerProps} />
               </svg>
             }
-          </div>
+          </div> */}
           <svg
             className='scheme-svg'
             ref={ref}
+            shape-rendering='geometricPrecision'
           />
           {counters.map(({ category, ...counter }, i) => (
             <KeepScale style={{ position: 'absolute', zIndex: 20, ...counter }}>
