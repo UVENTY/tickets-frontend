@@ -10,8 +10,9 @@ import { useIsMobile } from 'utils/hooks'
 const bem = cn('seating-tooltip')
 
 const SeatingTooltip = forwardRef((props, ref) => {
+  const { visible, onToggle = () => {} } = props
   const isMobile = useIsMobile()
-  const [visible, setVisible] = useState(props.visible)
+  // const [visible, setVisible] = useState(props.visible)
   let timer = useRef(null)
   // const ref = useRef(null)
 
@@ -22,7 +23,7 @@ const SeatingTooltip = forwardRef((props, ref) => {
   //   el.style.transform = `translateX(${x < 0 ? `calc(-100% - x)` : '-100%'}px)`
   // }, [props])
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (props.hideDelay) {
       if (!props.visible) {
         timer.current = setTimeout(() => setVisible(false), props.hideDelay)
@@ -33,11 +34,8 @@ const SeatingTooltip = forwardRef((props, ref) => {
     } else {
       setVisible(props.visible)
     }
-  }, [props.visible])
+  }, [props.visible]) */
 
-  if (props.scaleFactor && props.scaleFactor < 1) {
-    return null
-  }
   const cat = props.categories.find((c) => c.value === props.category);
   const svg = props.icon || cat?.icon;
   const color = props.color || cat?.color || "#fff";
@@ -47,7 +45,10 @@ const SeatingTooltip = forwardRef((props, ref) => {
       id='seat-tooltip'
       className={bem({ visible })}
       style={{ left: props.x, top: props.y }}
-      onClick={() => props.toggleInCart(props, Number(!props.inCart))}
+      onClick={() => {
+        props.toggleInCart(props, Number(!props.inCart))
+        onToggle(Number(!props.inCart))
+      }}
       ref={ref}
     >
       <div className={bem('head')}>

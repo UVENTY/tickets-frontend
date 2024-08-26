@@ -94,6 +94,7 @@
     background-color: transparent;
     transition: ease-in-out .3s;
     transition-property: color, background-color, opacity;
+    outline: none;
 
     &_selected {
       opacity: 1;

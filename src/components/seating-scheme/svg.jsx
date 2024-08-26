@@ -31,12 +31,11 @@ const SvgScheme = forwardRef((props, outerRef) => {
   
   const showSeatTooltip = el => {
     const { width, height, x, y } = ref.current.getBoundingClientRect()
-
     const elBounds = el.getBoundingClientRect()
     let dx = ((elBounds.x - x) + elBounds.width)
     let dy = ((elBounds.y - y) + elBounds.height)
-    
     const seat = svgSeat(el)
+
     setTooltipSeat({
       visible: true,
       x: `${(dx / width) * 100}%`,
@@ -53,7 +52,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const color = categories.find(cat => cat.value === category)?.color
     const viewBox = ref.current.getAttribute('viewBox')
     const box = el.getBBox()
-    setActiveSeat({
+    const activeObj = {
       Tag: el.tagName?.toLowerCase(),
       d: el.getAttribute('d'),
       fill: color,
@@ -61,17 +60,22 @@ const SvgScheme = forwardRef((props, outerRef) => {
       strokeWidth: 0,
       viewBox,
       box
-    })
+    }
+    setActiveSeat(activeObj)
     el.classList.add(SEAT_CLASS_HIDDEN)
   }
 
-  const hideSeatTooltip = (delay) => {
-    setTooltipSeat(prev => ({ ...prev, delay, visible: false }))
-    setActiveSeat(null)
-    Array.from(ref.current.querySelectorAll(`.${SEAT_CLASS_HIDDEN}`))
-      .forEach(el => {
-        el.classList.remove(SEAT_CLASS_HIDDEN)
-      })
+  const hideSeatTooltip = (delay = 0) => {
+    function hide() {
+      setTooltipSeat(prev => ({ ...prev, delay, visible: false }))
+      setActiveSeat(null)
+      Array.from(ref.current.querySelectorAll(`.${SEAT_CLASS_HIDDEN}`))
+        .forEach(el => {
+          el.classList.remove(SEAT_CLASS_HIDDEN)
+        })
+    }
+
+    delay ? setTimeout(hide, delay) : hide()
   }
 
   /* Обновление счетчиков билетов в корзине для всяких танцполов */
@@ -209,37 +213,25 @@ const SvgScheme = forwardRef((props, outerRef) => {
   /* Обработка клик на месте */
   useEffect(() => {
     const svgEl = ref.current
-    const hammer = new Hammer(svgEl)
+    const hammer = new Hammer(svgEl, { domEvents: true })
     const handleTap = (event) => {
       const isTouch = event.pointerType === 'touch'
-      const el = event.target
+      const el = event.target      
       const seat = svgSeat.from(el)
       const isMultiple = seat && seat.isMultiple()
       const seatCat = seat ? seat.get('category') : ''
       const ticketsCat = ticketsByCategory?.[seatCat] || []
       const ticket = isMultiple && ticketsCat ? ticketsCat.find(item => !item.inCart) : tickets.find(t => t.id === el.id)
-      const { visible, ticketId } = tooltipSeat
-
+      
       if (ticket && !el.hasAttribute('data-disabled')) {
-        Array.from(document.querySelectorAll('#clone-1, #clone-2')).forEach(el => el.remove())
         if (isTouch && !isMultiple) {
-          // Копируем текущее место для вывода копии поверх блюра
-          const clone = [el.cloneNode()]
-          // Если у элемента есть галочка, то копируем и ее
-          if (el.nextElementSibling.tagName?.toLowerCase() === 'use') clone.push(el.nextElementSibling.cloneNode())
-          clone.forEach((el, i) => {
-            el.id = `clone-${(i + 1)}`
-            el.classList.add(SEAT_CLONE_CLASS)
-            ref.current.appendChild(el)
-          })
           showSeatTooltip(el)
         } else {
           toggleInCart(ticket)
+          hideSeatTooltip(500)
         }
       } else {
-        const delay = el.matches('.seating-tooltip') || el.closest('.seating-tooltip') ? 500 : 0
         hideSeatTooltip(0)
-        document.querySelectorAll('#clone-1, #clone-2').forEach(el => el.remove())
       }
     }
     hammer.on('tap', handleTap)
@@ -267,7 +259,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const transform = ref.current?.parentNode?.style.transform
   const ticket = useMemo(() => tickets.find(ticket => ticket.id === tooltipSeat.ticketId), [tickets, tooltipSeat.ticketId])
   const { Tag: MarkerTag, viewBox, box, ...markerProps } = activeSeat || {}
-
+  
   return (
     <>
       <TransformComponent>
@@ -304,7 +296,9 @@ const SvgScheme = forwardRef((props, outerRef) => {
             * вывести копию этого path в свг того же размера, что и схема, и вывести результат
             * поверх схемы.
             */}
-          <div className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}>
+          <div
+            className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}
+            onPointerDown={(e) => console.log(e.target, e.currentTarget, {...activeSeat}, 'click') || hideSeatTooltip(0)}>
             <svg
               ref={refSelected}
               fill='none'
@@ -345,6 +339,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
               hideDelay={tooltipSeat.delay ?? 500}
               scaleFactor={context?.transformState?.scale}
               toggleInCart={toggleInCart}
+              onToggle={() => hideSeatTooltip(500)}
             />}
           </KeepScale>
         </div>
