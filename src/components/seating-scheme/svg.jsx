@@ -3,7 +3,7 @@ import { KeepScale, TransformComponent, useControls, useTransformComponent, useT
 import Hammer from 'hammerjs'
 import { svgSeat } from 'utils/dom-scheme'
 import { createDefs, createStyles, stringToSvg } from './utils'
-import { SEAT_CLONE_CLASS } from 'const'
+import { SEAT_CLASS, SEAT_CLASS_HIDDEN, SEAT_CLONE_CLASS } from 'const'
 import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
 import classNames from 'classnames'
@@ -24,6 +24,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const [activeSeat, setActiveSeat] = useState(null)
   const { src, categories, cart, highlight, tickets, viewport, toggleInCart } = props
   const ref = useRef(null)
+  const refSelected = useRef(null)
   const { zoomIn } = useControls()
   useImperativeHandle(outerRef, () => ref.current)
 
@@ -50,11 +51,31 @@ const SvgScheme = forwardRef((props, outerRef) => {
       text: seat.get('text'),
       delay: null
     })
+    Array.from(ref.current.querySelectorAll(`.${SEAT_CLASS_HIDDEN}`))
+      .forEach(el => {
+        el.classList.remove(SEAT_CLASS_HIDDEN)
+      })
+    const category = seat.get('category')
+    const color = categories.find(cat => cat.value === category)?.color
+    const viewBox = ref.current.getAttribute('viewBox')
+    setActiveSeat({
+      Tag: el.tagName?.toLowerCase(),
+      d: el.getAttribute('d'),
+      fill: color,
+      stroke: color,
+      strokeWidth: 0,
+      viewBox
+    })
+    el.classList.add(SEAT_CLASS_HIDDEN)
   }
 
   const hideSeatTooltip = (delay) => {
     setTooltipSeat(prev => ({ ...prev, delay, visible: false }))
     setActiveSeat(null)
+    Array.from(ref.current.querySelectorAll(`.${SEAT_CLASS_HIDDEN}`))
+      .forEach(el => {
+        el.classList.remove(SEAT_CLASS_HIDDEN)
+      })
   }
 
   /* Обновление счетчиков билетов в корзине для всяких танцполов */
@@ -144,12 +165,12 @@ const SvgScheme = forwardRef((props, outerRef) => {
       }
     })
 
-    const fobj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
-    fobj.setAttribute('width', '100%')
-    fobj.setAttribute('height', '100%')
-    fobj.id = 'svg-overlay'
-    fobj.innerHTML = '<div class="scheme-overlay"></div>'
-    node.appendChild(fobj)
+    // const fobj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+    // fobj.setAttribute('width', '100%')
+    // fobj.setAttribute('height', '100%')
+    // fobj.id = 'svg-overlay'
+    // fobj.innerHTML = '<div class="scheme-overlay"></div>'
+    // node.appendChild(fobj)
 
     const viewBox = (node.getAttribute('viewBox') || '').split(' ')
     const [x1, y1, x2, y2] = viewBox.map(Number) || []
@@ -194,11 +215,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const svgEl = ref.current
     const hammer = new Hammer(svgEl)
     const handleTap = (event) => {
-      log('tap', context?.transformState?.scale)
-      if (context?.transformState?.scale && context.transformState.scale < 1.5) {
-        zoomIn()
-      }
-      log('handle tap!!!')
       const isTouch = event.pointerType === 'touch'
       const el = event.target
       const seat = svgSeat.from(el)
@@ -207,7 +223,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
       const ticketsCat = ticketsByCategory?.[seatCat] || []
       const ticket = isMultiple && ticketsCat ? ticketsCat.find(item => !item.inCart) : tickets.find(t => t.id === el.id)
       const { visible, ticketId } = tooltipSeat
-      const overlay = svgEl.querySelector('#svg-overlay div')
 
       if (ticket && !el.hasAttribute('data-disabled')) {
         Array.from(document.querySelectorAll('#clone-1, #clone-2')).forEach(el => el.remove())
@@ -221,7 +236,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
             el.classList.add(SEAT_CLONE_CLASS)
             ref.current.appendChild(el)
           })
-          overlay.classList.add('scheme-overlay_visible')
           showSeatTooltip(el)
         } else {
           toggleInCart(ticket)
@@ -229,7 +243,6 @@ const SvgScheme = forwardRef((props, outerRef) => {
       } else {
         const delay = el.matches('.seating-tooltip') || el.closest('.seating-tooltip') ? 500 : 0
         hideSeatTooltip(0)
-        overlay.classList.remove('scheme-overlay_visible')
         document.querySelectorAll('#clone-1, #clone-2').forEach(el => el.remove())
       }
     }
@@ -281,7 +294,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
     el.innerHTML = msg + "<br>" + el.innerHTML
   })
 
-  const { Tag: MarkerTag, ...markerProps } = activeSeat || {}
+  const { Tag: MarkerTag, viewBox, ...markerProps } = activeSeat || {}
 
   return (
     <>
@@ -305,10 +318,32 @@ const SvgScheme = forwardRef((props, outerRef) => {
             }
           </div> */}
           <svg
-            className='scheme-svg'
             ref={ref}
+            className='scheme-svg'
             shape-rendering='geometricPrecision'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
           />
+
+          {/* Ни один вариант блюра свг (пробовал filter, backdrop-filter, привязка через url="#")
+            * не заработал в сафари (лучи поноса тому, кто угробил сафари для винды). Зато тэг
+            * за пределами свг с backdrop-filter отличо работает. Вот и приходится костылить.
+            * Поскольку почти места в схеме заданы через path со смещением сразу в d="", проще всего
+            * вывести копию этого path в свг того же размера, что и схема, и вывести результат
+            * поверх схемы.
+            */}
+          <div className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}>
+            <svg
+              ref={refSelected}
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox={viewBox}
+              style={{ width: '100%', height: '100%' }}
+            >
+              {!!activeSeat && <MarkerTag {...markerProps} />}
+            </svg>
+          </div>
+          
           {counters.map(({ category, ...counter }, i) => (
             <KeepScale style={{ position: 'absolute', zIndex: 20, ...counter }}>
               <TicketsCounter
@@ -320,7 +355,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           ))}
           <KeepScale
             style={{
-              zIndex: 20,
+              zIndex: 110,
               position: 'absolute',
               pointerEvents: 'none',
               left: tooltipSeat.x,

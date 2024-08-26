@@ -7,6 +7,7 @@ export const CATEGORY_CHECK_PATH_ID = 'checked-category-path'
 export const SEAT_CLASS = 'svg-seat'
 export const SEAT_CLASS_ACTIVE = `${SEAT_CLASS}_active`
 export const SEAT_CLASS_SELECTED = `${SEAT_CLASS}_selected`
+export const SEAT_CLASS_HIDDEN = `${SEAT_CLASS}_hidden`
 export const SEAT_CLONE_CLASS = 'svg-seat-clone'
 
 export const CURRENCY_SYMBOL_MAP = {

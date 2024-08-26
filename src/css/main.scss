@@ -636,6 +636,10 @@
 
 .svg-seat {
   transition: ease .3s color;
+
+  &_hidden {
+    display: none;
+  }
 }
 
 .icon-sign {
