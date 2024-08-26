@@ -155,7 +155,11 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const [x1, y1, x2, y2] = viewBox.map(Number) || []
     const svgWidth = x2 - x1
     const svgHeight = y2 - y1
-    const { width: w, height: h } = viewport || {}
+    let { width: w, height: h } = viewport || {}
+    if (!w && window.innerWidth < 1024) {
+      w = window.innerWidth
+    }
+    
     let rw = svgWidth
     let rh = svgHeight
     // Высота 100% ширина автоматически
