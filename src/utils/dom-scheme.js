@@ -63,8 +63,6 @@ export const svgSeat = (el, details = {}) => {
         const node = seat.getTitleNode()
         if (!node) return
         const { x, y } = node.getBBox()
-        console.log(node, x, y);
-        
         insertAfter(node, createUse({ x: x - 15, y: y + 6, class: 'category-check', href: `#${CATEGORY_CHECK_PATH_ID}` }))
         el.style.cursor = 'auto'
       } else {

@@ -74,7 +74,7 @@ export default function Loader() {
   }, [searchParams.get('scheme')])
   
   return (
-    <>
+    <div className='layout'>
       {/* <div
         className={cn("loading-screen", {
           'loading-screen_hidden': loaded
@@ -91,7 +91,7 @@ export default function Loader() {
       <div className={cn('mobile-close', { 'mobile-close_visible': showScheme })}>
         <Link to={{ search }}>
           <svg className='icon-arrow' width="7" height="12" viewBox="0 0 7 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.74372 0.251051C7.08543 0.585786 7.08543 1.1285 6.74372 1.46323L2.11244 6L6.74372 10.5368C7.08543 10.8715 7.08543 11.4142 6.74372 11.7489C6.40201 12.0837 5.84799 12.0837 5.50628 11.7489L0.256282 6.60609C-0.0854272 6.27136 -0.0854272 5.72864 0.256282 5.39391L5.50628 0.251051C5.84799 -0.0836838 6.40201 -0.0836838 6.74372 0.251051Z" fill="#F8F5EC" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M6.74372 0.251051C7.08543 0.585786 7.08543 1.1285 6.74372 1.46323L2.11244 6L6.74372 10.5368C7.08543 10.8715 7.08543 11.4142 6.74372 11.7489C6.40201 12.0837 5.84799 12.0837 5.50628 11.7489L0.256282 6.60609C-0.0854272 6.27136 -0.0854272 5.72864 0.256282 5.39391L5.50628 0.251051C5.84799 -0.0836838 6.40201 -0.0836838 6.74372 0.251051Z" fill="#F8F5EC" />
           </svg>
           Back to the concert page
         </Link>
@@ -111,6 +111,6 @@ export default function Loader() {
       {loaded && <div className={cn('loader-content', { 'loader-content_mobile-visible': showScheme })}>
         <Outlet context={data} />
       </div>}
-    </>
+    </div>
   )
 }

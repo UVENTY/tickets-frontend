@@ -7,12 +7,12 @@ import { ReactComponent as Selected } from 'icons/selected.svg'
 import './seating-tooltip.scss'
 import { useIsMobile } from 'utils/hooks'
 
-const bem = cn( 'seating-tooltip' )
+const bem = cn('seating-tooltip')
 
-const SeatingTooltip = forwardRef( ( props, ref ) => {
+const SeatingTooltip = forwardRef((props, ref) => {
   const isMobile = useIsMobile()
-  const [ visible, setVisible ] = useState( props.visible )
-  let timer = useRef( null )
+  const [visible, setVisible] = useState(props.visible)
+  let timer = useRef(null)
   // const ref = useRef(null)
 
   // useEffect(() => {
@@ -22,67 +22,67 @@ const SeatingTooltip = forwardRef( ( props, ref ) => {
   //   el.style.transform = `translateX(${x < 0 ? `calc(-100% - x)` : '-100%'}px)`
   // }, [props])
 
-  useEffect( () => {
-    if ( props.hideDelay ) {
-      if ( !props.visible ) {
-        timer.current = setTimeout( () => setVisible( false ), props.hideDelay )
-      } else if ( timer.current ) {
-        clearTimeout( timer.current )
-        setVisible( true )
+  useEffect(() => {
+    if (props.hideDelay) {
+      if (!props.visible) {
+        timer.current = setTimeout(() => setVisible(false), props.hideDelay)
+      } else if (timer.current) {
+        clearTimeout(timer.current)
+        setVisible(true)
       }
     } else {
-      setVisible( props.visible )
+      setVisible(props.visible)
     }
-  }, [ props.visible ] )
+  }, [props.visible])
 
-  if ( props.scaleFactor && props.scaleFactor < 1 ) {
+  if (props.scaleFactor && props.scaleFactor < 1) {
     return null
   }
-  const cat = props.categories.find( ( c ) => c.value === props.category );
+  const cat = props.categories.find((c) => c.value === props.category);
   const svg = props.icon || cat?.icon;
   const color = props.color || cat?.color || "#fff";
 
   return (
     <div
       id='seat-tooltip'
-      className={ bem( { visible } ) }
-      style={ { left: props.x, top: props.y } }
-      onClick={ () => props.toggleInCart( props, Number( !props.inCart ) ) }
-      ref={ ref }
+      className={bem({ visible })}
+      style={{ left: props.x, top: props.y }}
+      onClick={() => props.toggleInCart(props, Number(!props.inCart))}
+      ref={ref}
     >
-      <div className={ bem( 'head' ) }>
-        <div className={ bem( 'price' ) }>
-          { props?.price || '-' }&nbsp;{ CURRENCY_SYMBOL_MAP[ props?.currency ] || '' }
+      <div className={bem('head')}>
+        <div className={bem('price')}>
+          {props?.price || '-'}&nbsp;{CURRENCY_SYMBOL_MAP[props?.currency] || ''}
         </div>
-        { !!svg && <div
-          className={ bem( 'icon' ) }
-          style={ { color } }
-          dangerouslySetInnerHTML={ { __html: svg } }
-        /> }
+        {!!svg && <div
+          className={bem('icon')}
+          style={{ color }}
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />}
       </div>
-      <div className={ bem( 'desc' ) } style={ { color } }>
-        <div className={ bem( 'category' ) }>{ cat?.name || props.category }</div>
-        { !!props.text && <div className={ bem( 'text' ) }>{ props.text }</div> }
+      <div className={bem('desc')} style={{ color }}>
+        <div className={bem('category')}>{cat?.name || props.category}</div>
+        {!!props.text && <div className={bem('text')}>{props.text}</div>}
       </div>
-      <div className={ bem( 'seat' ) }>
-        <div className={ bem( 'row' ) }>
-          <span>Row:</span> { props.row }
+      <div className={bem('seat')}>
+        <div className={bem('row')}>
+          <span>Row:</span> {props.row}
         </div>
-        <div className={ bem( 'num' ) }>
-          <span>Seat:</span> { props.seat }
+        <div className={bem('num')}>
+          <span>Seat:</span> {props.seat}
         </div>
       </div>
       <button
-        className={ bem( 'button', { selected: props.inCart } ) }
-        style={ {
+        className={bem('button', { selected: props.inCart })}
+        style={{
           backgroundColor: props.inCart ? color : undefined,
           borderColor: props.inCart ? color : undefined
-        } }
+        }}
       >
-        { props.inCart ? <><Selected style={ { width: 12 } } /> Selected</> : `${isMobile ? 'Tap' : 'Click'} to select` }
+        {props.inCart ? <><Selected style={{ width: 12 }} /> Selected</> : `${isMobile ? 'Tap' : 'Click'} to select`}
       </button>
     </div>
   )
-} )
+})
 
 export default SeatingTooltip

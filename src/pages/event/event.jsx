@@ -105,7 +105,7 @@ export default function Event() {
       <div className={classNames(bem('sidebar'), bem('categories'))} ref={ref}>
         <h2 className={bem('title')}>select a category:</h2>
         <CategorySelector
-          defaultCurrency={config?.currency}www
+          defaultCurrency={config?.currency}
           value={selectValue}
           options={categories}
           opened={selectOpened}

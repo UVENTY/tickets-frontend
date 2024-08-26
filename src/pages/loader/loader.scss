@@ -1,5 +1,12 @@
 @import '../../../mixins.scss';
 
+.layout {
+  --top-line-height: 28px;
+  --mobile-select-category-height: 75px;
+  --mobile-select-cart-height: 150px;
+  --mobile-scheme-height: calc(100dvh - var(--top-line-height) - var(--mobile-select-category-height) - var(--mobile-select-cart-height));
+}
+
 @keyframes rotate {
   0% {
     transform: scale(1) rotate(360deg);

@@ -128,3 +128,10 @@ export const omit = (obj, keys) => Object.keys(obj).reduce((acc, key) => {
   }
   return acc
 }, {})
+
+export function log(...args) {
+  const el = document.getElementById('log')
+  if (!el) return
+  const text = args.map((arg) => JSON.stringify(arg)).join(' ')
+  el.innerHTML = text + "<br>" + el.innerHTML
+}

@@ -9,6 +9,7 @@
 
   @include bp(device) {
     flex-direction: column-reverse;
+    max-height: calc(100vh - 28px - 75px) ;
   }
 
   &-list {

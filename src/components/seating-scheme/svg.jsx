@@ -8,12 +8,6 @@ import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
 import classNames from 'classnames'
 
-function log(...args) {
-  const el = document.getElementById('log')
-  const text = args.map((arg) => JSON.stringify(arg)).join(' ')
-  el.innerHTML = text + "<br>" + el.innerHTML
-}
-
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
 
@@ -58,13 +52,15 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const category = seat.get('category')
     const color = categories.find(cat => cat.value === category)?.color
     const viewBox = ref.current.getAttribute('viewBox')
+    const box = el.getBBox()
     setActiveSeat({
       Tag: el.tagName?.toLowerCase(),
       d: el.getAttribute('d'),
       fill: color,
       stroke: color,
       strokeWidth: 0,
-      viewBox
+      viewBox,
+      box
     })
     el.classList.add(SEAT_CLASS_HIDDEN)
   }
@@ -269,32 +265,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const width = ref.current?.parentNode?.clientWidth
   const height = ref.current?.parentNode?.clientWidth
   const transform = ref.current?.parentNode?.style.transform
-
-  const transformedComponent = useTransformComponent(({ state, instance }) => {
-    return <KeepScale style={{ position: 'absolute', pointerEvents: 'none' }}>
-      {tickets?.length > 0 && <SeatingTooltip
-        {...tickets.find(ticket => ticket.id === tooltipSeat.ticketId)}
-        categories={categories}
-        visible={tooltipSeat.visible}
-        x={tooltipSeat.x}
-        y={tooltipSeat.y}
-        text={tooltipSeat.text}
-        hideDelay={tooltipSeat.delay ?? 500}
-        scaleFactor={context?.transformState?.scale}
-        toggleInCart={toggleInCart}
-      />}
-
-    </KeepScale>
-  })
-
-  const log = useCallback((msg) => {
-    const el = document.querySelector('#log')
-    if (!el) return
-    if (typeof msg === 'object') msg = JSON.stringify(msg)
-    el.innerHTML = msg + "<br>" + el.innerHTML
-  })
-
-  const { Tag: MarkerTag, viewBox, ...markerProps } = activeSeat || {}
+  const ticket = useMemo(() => tickets.find(ticket => ticket.id === tooltipSeat.ticketId), [tickets, tooltipSeat.ticketId])
+  const { Tag: MarkerTag, viewBox, box, ...markerProps } = activeSeat || {}
 
   return (
     <>
@@ -320,7 +292,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           <svg
             ref={ref}
             className='scheme-svg'
-            shape-rendering='geometricPrecision'
+            shapeRendering='geometricPrecision'
             fill='none'
             xmlns='http://www.w3.org/2000/svg'
           />
@@ -341,6 +313,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
               style={{ width: '100%', height: '100%' }}
             >
               {!!activeSeat && <MarkerTag {...markerProps} />}
+              {!!box && ticket.inCart && <use x={box.x + 1.5} y={box.y + 1.8} href="#checked-seat-path" />}
             </svg>
           </div>
           
@@ -365,7 +338,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
             }}
           >
             {tickets?.length > 0 && <SeatingTooltip
-              {...tickets.find(ticket => ticket.id === tooltipSeat.ticketId)}
+              {...ticket}
               categories={categories}
               visible={tooltipSeat.visible}
               text={tooltipSeat.text}
