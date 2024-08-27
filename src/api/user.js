@@ -41,11 +41,8 @@ export async function updateUser(data) {
 }
 
 export async function AuthUser(email = "", phone = "", auth_type = "e-mail") {
-  if (email === null || email === undefined) {
-    auth_type = "phone";
-  }
   var data = {
-    login: email || phone,
+    login: email,
     type: auth_type,
     password: PHANTOM_PASSWORD
   };
