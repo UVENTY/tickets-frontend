@@ -134,7 +134,7 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
               <div className={bem('fee')}>{totalCount}</div>
             </div>
             {!!fee && <div className={bem('total')}>
-              <div className={bem('fee')}>transaction fee {fee}%:</div>
+              <div className={bem('fee')}>service fee {fee}%:</div>
               <div className={bem('fee')}>{feeAbs} {currency}</div>
             </div>}
             <div className={bem('total')}>

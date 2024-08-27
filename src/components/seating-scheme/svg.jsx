@@ -1,12 +1,13 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { KeepScale, TransformComponent, useControls, useTransformComponent, useTransformContext } from 'react-zoom-pan-pinch'
 import Hammer from 'hammerjs'
+import classNames from 'classnames'
 import { svgSeat } from 'utils/dom-scheme'
 import { createDefs, createStyles, stringToSvg } from './utils'
 import { SEAT_CLASS, SEAT_CLASS_HIDDEN, SEAT_CLONE_CLASS } from 'const'
 import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
-import classNames from 'classnames'
+import { log } from 'utils'
 
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
@@ -158,6 +159,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           el.addEventListener('mouseout', (e) => {
             if (e.sourceCapabilities?.firesTouchEvents) return false
             timer = setTimeout(() => {
+              log('mouseout')
               hideSeatTooltip()
             }, 1000)
           })
@@ -228,9 +230,11 @@ const SvgScheme = forwardRef((props, outerRef) => {
           showSeatTooltip(el)
         } else {
           toggleInCart(ticket)
+          console.log('not touch or multiple')
           hideSeatTooltip(500)
         }
       } else {
+        log('no ticket or disabled')
         hideSeatTooltip(0)
       }
     }
@@ -298,7 +302,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
             */}
           <div
             className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}
-            onPointerDown={(e) => console.log(e.target, e.currentTarget, {...activeSeat}, 'click') || hideSeatTooltip(0)}>
+            onPointerDown={(e) => log('overlay pointer down') || hideSeatTooltip(0)}>
             <svg
               ref={refSelected}
               fill='none'
@@ -339,7 +343,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
               hideDelay={tooltipSeat.delay ?? 500}
               scaleFactor={context?.transformState?.scale}
               toggleInCart={toggleInCart}
-              onToggle={() => hideSeatTooltip(500)}
+              onToggle={() => log('toggle ticket with tooltip') || hideSeatTooltip(500)}
             />}
           </KeepScale>
         </div>

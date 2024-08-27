@@ -130,8 +130,14 @@ export const omit = (obj, keys) => Object.keys(obj).reduce((acc, key) => {
 }, {})
 
 export function log(...args) {
-  const el = document.getElementById('log')
-  if (!el) return
+  let el = document.getElementById('log')
+  if (!el) {
+    return
+    // el = document.createElement('div')
+    // el.setAttribute('style', 'position: fixed; top: 0; right: 0; width: 100px; height: 300px; overflow: auto; background: #000; color: #fff; padding: 10px; z-index: 9999;')
+    // el.id = 'log'
+    // document.body.appendChild(el)
+  }
   const text = args.map((arg) => JSON.stringify(arg)).join(' ')
   el.innerHTML = text + "<br>" + el.innerHTML
 }

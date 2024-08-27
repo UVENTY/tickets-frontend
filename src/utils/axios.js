@@ -3,7 +3,7 @@ import { getFormData, omit } from 'utils'
 import { getFromLocalStorage } from 'utils/common'
 import { STORAGE_KEY_USER_HASH, STORAGE_KEY_USER_TOKEN } from 'const'
 
-export const API_URL = "https://ibronevik.ru/taxi/c/TikShow/api/v1/"
+export const API_URL = "https://uticket.uventy.com/uventy/c/TikShow/api/v1/"
 
 export const axios = axiosHttp.create({
   baseURL: API_URL
