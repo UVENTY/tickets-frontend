@@ -5,7 +5,7 @@ import { STORAGE_KEY_USER_HASH, STORAGE_KEY_USER_TOKEN } from 'const'
 
 export const API_HOST = 'https://uticket.uventy.com'
 export const API_URI = '/uventy/c/TikShow/api/v1/'
-const API_URL = `${API_HOST}${API_URI}`
+export const API_URL = `${API_HOST}${API_URI}`
 export const axios = axiosHttp.create({
   baseURL: API_URL
 })
