@@ -1,8 +1,8 @@
-import { API_HOST, axios } from "utils/axios";
+import { API_DIR, API_HOST, axios } from "utils/axios";
 
 export const getConfigQuery = (options) => ({
   queryKey: ['config'],
-  queryFn: () => axios.get(API_HOST + '/taxi/cache/data_TikShow.json'),
+  queryFn: () => axios.get(API_HOST + API_DIR + '/cache/data_TikShow.json'),
   select: ({ data }) => ({
     country: data.default_country,
     currency: data.default_currency,
