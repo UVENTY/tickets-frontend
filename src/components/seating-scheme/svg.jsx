@@ -7,7 +7,9 @@ import { createDefs, createStyles, stringToSvg } from './utils'
 import { SEAT_CLASS, SEAT_CLASS_HIDDEN, SEAT_CLONE_CLASS } from 'const'
 import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
-import { log } from 'utils'
+// import { log } from 'utils'
+
+const log = console.log
 
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
