@@ -278,6 +278,7 @@
   background: #40403e;
   font-size: 12px;
   color: #f8f5ec;
+  box-sizing: border-box;
 }
 
 ._info-form > button {
