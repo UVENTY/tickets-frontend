@@ -9,7 +9,7 @@ import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
 // import { log } from 'utils'
 
-const log = window.alert
+const log = () => {}
 
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
