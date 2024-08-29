@@ -7,12 +7,15 @@ import { createDefs, createStyles, stringToSvg } from './utils'
 import { SEAT_CLASS, SEAT_CLASS_HIDDEN, SEAT_CLONE_CLASS } from 'const'
 import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
+import { isTouchDevice } from 'utils'
 // import { log } from 'utils'
 
-const log = () => {}
+const log = window.alert
 
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
+
+const isTouch = isTouchDevice()
 
 const SvgScheme = forwardRef((props, outerRef) => {
   const [counters, setCounters] = useState([])
@@ -154,14 +157,15 @@ const SvgScheme = forwardRef((props, outerRef) => {
         if (!seat.isMultiple()) {
           const svgBound = ref.current.getBBox()
           el.addEventListener('mouseover', (e) => {
-            if (e.sourceCapabilities?.firesTouchEvents) return false
+            if (!isTouch) return false
             timer && clearTimeout(timer)
             showSeatTooltip(el)
           })
           el.addEventListener('mouseout', (e) => {
-            if (e.sourceCapabilities?.firesTouchEvents) return false
+            if (!isTouch) return false
             timer = setTimeout(() => {
               log('mouseout')
+              log(el.tagName, el.getAttribute('class'), el.textContent)
               hideSeatTooltip()
             }, 1000)
           })
@@ -219,9 +223,15 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const svgEl = ref.current
     const hammer = new Hammer(svgEl, { domEvents: true })
     const handleTap = (event) => {
-      const isTouch = event.pointerType === 'touch'
       const el = event.target      
       const seat = svgSeat.from(el)
+      if (!seat) {
+        log('no seat')
+        log(el.tagName, el.getAttribute('class'), el.textContent)
+        hideSeatTooltip(0)
+        return
+      }
+
       const isMultiple = seat && seat.isMultiple()
       const seatCat = seat ? seat.get('category') : ''
       const ticketsCat = ticketsByCategory?.[seatCat] || []
@@ -232,11 +242,13 @@ const SvgScheme = forwardRef((props, outerRef) => {
           showSeatTooltip(el)
         } else {
           toggleInCart(ticket)
-          console.log('not touch or multiple')
+          log('not touch or multiple')
+          log(el.tagName, el.getAttribute('class'), el.textContent)
           hideSeatTooltip(500)
         }
       } else {
         log('no ticket or disabled')
+        log(el.tagName, el.getAttribute('class'), el.textContent)
         hideSeatTooltip(0)
       }
     }
@@ -304,7 +316,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
             */}
           <div
             className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}
-            onPointerDown={(e) => log('overlay pointer down') || hideSeatTooltip(0)}>
+            onPointerDown={(e) => log('overlay pointer down', e.target) || hideSeatTooltip(0)}>
             <svg
               ref={refSelected}
               fill='none'

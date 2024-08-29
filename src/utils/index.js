@@ -141,3 +141,9 @@ export function log(...args) {
   const text = args.map((arg) => JSON.stringify(arg)).join(' ')
   el.innerHTML = text + "<br>" + el.innerHTML
 }
+
+export function isTouchDevice() {
+  return (('ontouchstart' in window) ||
+    (navigator.maxTouchPoints > 0) ||
+    (navigator.msMaxTouchPoints > 0));
+}
