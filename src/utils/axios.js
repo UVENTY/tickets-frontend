@@ -3,8 +3,8 @@ import { getFormData, omit } from 'utils'
 import { getFromLocalStorage } from 'utils/common'
 import { STORAGE_KEY_USER_HASH, STORAGE_KEY_USER_TOKEN } from 'const'
 
-// export const API_HOST = 'https://ibronevik.ru'
-export const API_HOST = 'https://uticket.uventy.com/uventy'
+export const API_HOST = 'https://ibronevik.ru'
+// export const API_HOST = 'https://uticket.uventy.com/uventy'
 export const API_URI = '/c/TikShow/api/v1/'
 export const API_URL = `${API_HOST}${API_URI}`
 export const axios = axiosHttp.create({
