@@ -157,12 +157,12 @@ const SvgScheme = forwardRef((props, outerRef) => {
         if (!seat.isMultiple()) {
           const svgBound = ref.current.getBBox()
           el.addEventListener('mouseover', (e) => {
-            if (!isTouch) return false
+            if (isTouch) return false
             timer && clearTimeout(timer)
             showSeatTooltip(el)
           })
-          el.addEventListener('m', (e) => {
-            if (!isTouch) return false
+          el.addEventListener('mouseout', (e) => {
+            if (isTouch) return false
             timer = setTimeout(() => {
               log('mouseout')
               log(el.tagName, el.getAttribute('class'), el.textContent)
