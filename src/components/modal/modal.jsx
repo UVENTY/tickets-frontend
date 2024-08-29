@@ -249,11 +249,11 @@ const CartModal = ({
   }
   return (
     <>
-      <div className={cn('error-msg', { open: !!errorMsg })} style={{ display: !!errorMsg ? 'flex' : 'none' }}>
+      {/* <div className={cn('error-msg', { open: !!errorMsg })} style={{ display: !!errorMsg ? 'flex' : 'none' }}>
         <div className="title">
           {errorMsg}
         </div>
-      </div>
+      </div> */}
       <div
         className={`w100 df aic jcc modal-container ${open && "open"}`}
         onClick={e => {
