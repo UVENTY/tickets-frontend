@@ -10,7 +10,7 @@ import TicketsCounter from 'components/tickets-counter'
 import { isTouchDevice } from 'utils'
 // import { log } from 'utils'
 
-const log = window.alert
+const log = () => {}
 
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
@@ -161,7 +161,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
             timer && clearTimeout(timer)
             showSeatTooltip(el)
           })
-          el.addEventListener('mouseout', (e) => {
+          el.addEventListener('m', (e) => {
             if (!isTouch) return false
             timer = setTimeout(() => {
               log('mouseout')
