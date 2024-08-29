@@ -1,3 +1,4 @@
+import { CURRENCY_SYMBOL_MAP } from 'const'
 import { axios } from 'utils/axios'
 
 const fetchEvent = async (id) => {
@@ -9,6 +10,10 @@ const fetchEvent = async (id) => {
   }
   if (event.stadium) {
     const scheme_url = stadiums[event.stadium]?.scheme_blob
+    if (!event.currency) {
+      event.currency = data?.default_currency
+    }
+    event.currencySign = CURRENCY_SYMBOL_MAP?.[event.currency] || event.currency
     if (scheme_url) {
       const { data } = await axios.get(scheme_url)
       event.categories = data.categories

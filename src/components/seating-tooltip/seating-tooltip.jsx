@@ -10,7 +10,7 @@ import { useIsMobile } from 'utils/hooks'
 const bem = cn('seating-tooltip')
 
 const SeatingTooltip = forwardRef((props, ref) => {
-  const { visible, onToggle = () => {} } = props
+  const { visible, currency, onToggle = () => {} } = props
   const isMobile = useIsMobile()
   // const [visible, setVisible] = useState(props.visible)
   let timer = useRef(null)
@@ -53,7 +53,7 @@ const SeatingTooltip = forwardRef((props, ref) => {
     >
       <div className={bem('head')}>
         <div className={bem('price')}>
-          {props?.price || '-'}&nbsp;{CURRENCY_SYMBOL_MAP[props?.currency] || ''}
+          {props?.price || '-'}&nbsp;{currency}
         </div>
         {!!svg && <div
           className={bem('icon')}

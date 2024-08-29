@@ -5,17 +5,16 @@ import cn from "classnames"
 import { useUser } from "api/user"
 import { getEventQuery } from "api/event"
 import { getTicketsQuery } from "api/tickets"
-import { getConfigQuery } from "api/config"
-import combineQueries from "./combine"
 import { ReactComponent as TicketLogo } from 'icons/ticket_logo.svg'
 import Button from "components/button"
-import './loader.scss'
 import { useEventId } from "utils/hooks"
 import NotFound from "pages/not-found"
 import { clearCart } from "api/cart"
 import { STORAGE_KEY_PLACES_IN_ORDERS, STORAGE_KEY_USER_HASH, STORAGE_KEY_USER_TOKEN } from "const"
 import { getFromLocalStorage } from "utils/common"
 import { API_URL } from "utils/axios"
+import combineQueries from "./combine"
+import './loader.scss'
 
 export default function Loader() {
   const routeParams = useParams()
@@ -30,7 +29,6 @@ export default function Loader() {
   const enabled = authorized && !!id
   const data = useQueries({
     queries: [
-      getConfigQuery({ enabled }),
       getEventQuery(id, { enabled }),
       getTicketsQuery(id, { enabled })
     ],

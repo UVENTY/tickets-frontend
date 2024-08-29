@@ -28,7 +28,7 @@ export default function Event() {
   const [searchParams] = useSearchParams()
   const id = useEventId()
   const queryClient = useQueryClient()
-  const { bookingExpired, bookingLimit, cart, cartByCategory, categories, config, scheme, tickets, event, errors } = useOutletContext()
+  const { bookingExpired, bookingLimit, cart, cartByCategory, categories, scheme, tickets, event, errors } = useOutletContext()
   const isMobile = useIsMobile()
   const [selectValue, setSelectValue] = useState(null)
   const [selectOpened, setSelectOpened] = useState(false)
@@ -81,7 +81,7 @@ export default function Event() {
       return { previousCart }
     }
   })
-
+  
   const handleClearCart = useCallback((queryKey) => {
     return clearCart().then(() => queryClient.resetQueries({ queryKey, exact: true }))
   }, [cart])
@@ -100,12 +100,12 @@ export default function Event() {
           tickets={tickets || EMPTY_ARRAY}
           toggleInCart={toggleInCart.mutate}
           viewport={viewport}
+          currency={event?.currencySign}
         />}
       </div>
       <div className={classNames(bem('sidebar'), bem('categories'))} ref={ref}>
         <h2 className={bem('title')}>select a category:</h2>
         <CategorySelector
-          defaultCurrency={config?.currency}
           value={selectValue}
           options={categories}
           opened={selectOpened}
@@ -115,7 +115,7 @@ export default function Event() {
           }}
           onMouseOver={(e, val) => setHighlightCat(val.value)}
           onMouseOut={() => setHighlightCat(null)}
-          currency={event?.currency_sign}
+          currency={event?.currencySign}
         />
         <Button
           color='ghost'

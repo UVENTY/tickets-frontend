@@ -14,8 +14,8 @@ import SvgScheme from './svg'
 
 const SeatingScheme = forwardRef((props, ref) => {
   const svgRef = useRef(null)
-  const { src, cart, categories, tickets, toggleInCart, highlight, selectedCategory, resetSelectedCategory, viewport } = props
-
+  const { src, cart, categories, currency, tickets, toggleInCart, highlight, selectedCategory, resetSelectedCategory, viewport } = props
+  
   return (
     <TransformWrapper
       minScale={0.8}
@@ -29,6 +29,7 @@ const SeatingScheme = forwardRef((props, ref) => {
         src={src}
         cart={cart}
         categories={categories}
+        currency={currency}
         highlight={highlight}
         tickets={tickets}
         toggleInCart={toggleInCart}

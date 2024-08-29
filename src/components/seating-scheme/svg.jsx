@@ -19,12 +19,12 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const [tooltipSeat, setTooltipSeat] = useState({ visible: false })
   const [wrapperSize, setWrapperSize] = useState({ width: 'auto', height: '100%' })
   const [activeSeat, setActiveSeat] = useState(null)
-  const { src, categories, cart, highlight, tickets, viewport, toggleInCart } = props
+  const { src, categories, cart, currency, highlight, tickets, viewport, toggleInCart } = props
   const ref = useRef(null)
   const refSelected = useRef(null)
   const { zoomIn } = useControls()
   useImperativeHandle(outerRef, () => ref.current)
-
+  
   const ticketsByCategory = useMemo(() => tickets.reduce((acc, ticket) => ({
     ...acc,
     [ticket.category]: (acc[ticket.category] || []).concat(ticket)
@@ -344,6 +344,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
               text={tooltipSeat.text}
               hideDelay={tooltipSeat.delay ?? 500}
               scaleFactor={context?.transformState?.scale}
+              currency={currency}
               toggleInCart={toggleInCart}
               onToggle={() => log('toggle ticket with tooltip') || hideSeatTooltip(500)}
             />}

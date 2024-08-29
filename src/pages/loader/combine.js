@@ -14,7 +14,7 @@ const combineQueries = (results) => {
   }
   
   if (results.every(item => item.status === 'success')) {
-    const [config, respEvent, tickets] = results.map(item => item.data)
+    const [respEvent, tickets] = results.map(item => item.data)
     const priceList = tickets.map(item => item.price).filter(Boolean)
     const { categories: eventCats = [], schemeCode: scheme, ...event } = respEvent
     const bookingLimit = tickets.reduce((limit, ticket) => ticket.bookingLimit > Date.now() ? Math.max(limit, ticket.bookingLimit) : limit, 0)
@@ -59,12 +59,6 @@ const combineQueries = (results) => {
           [...t.price][0]
         return { ...category, ...t }
       }))
-
-    // TODO: Прикрутить в админке выбор валюты для мероприятия
-    // и использвать его вместо этого хардкода
-    if (event) {
-      event.currency_sign = '€'
-    }
     
     return {
       bookingExpired,
@@ -72,7 +66,6 @@ const combineQueries = (results) => {
       cartByCategory,
       cart,
       categories,
-      config,
       event,
       scheme,
       errors: [],

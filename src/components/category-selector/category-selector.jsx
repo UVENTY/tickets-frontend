@@ -9,7 +9,6 @@ import { useClickAway } from 'utils/hooks'
 const bem = cn('category-selector')
 
 export default function SelectCategory({
-  defaultCurrency = '',
   options = [],
   valueKey = 'value',
   value,
@@ -23,11 +22,6 @@ export default function SelectCategory({
   ...rest
 }) {
   const ref = useRef(null)
-  const getCurrency = useCallback((item) => {
-    const def = CURRENCY_SYMBOL_MAP[defaultCurrency] || defaultCurrency
-    return item.currency ? (CURRENCY_SYMBOL_MAP[item.currency] || item.currency) : def
-  }, [defaultCurrency])
-
   const selectedIndex = useMemo(() => options.findIndex(option => option[valueKey] === value), [options, value, valueKey])
 
   return (
