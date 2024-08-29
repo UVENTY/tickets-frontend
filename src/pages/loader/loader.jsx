@@ -24,6 +24,7 @@ export default function Loader() {
   const { data: authorized } = useUser()
   const location = useLocation()
 
+  const isMobile = window.innerWidth <= 1023
   // useEffect(clearCart, [id])
   
   const enabled = authorized && !!id
@@ -40,7 +41,6 @@ export default function Loader() {
   useEffect(() => {
     const onLeave = function(e) {
       e.preventDefault()
-      console.log('leave')
       if (document.visibilityState === "hidden") {
         const formData = new FormData()
         const token = getFromLocalStorage(STORAGE_KEY_USER_TOKEN)
@@ -109,6 +109,9 @@ export default function Loader() {
       {loaded && <div className={cn('loader-content', { 'loader-content_mobile-visible': showScheme })}>
         <Outlet context={data} />
       </div>}
+      <div className={cn('loader-spinner', { 'loader-spinner_visible': isMobile ? (!loaded && showScheme) : !loaded })}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle fill="#53BC6B" stroke="#53BC6B" stroke-width="2" r="15" cx="40" cy="100"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.4" /></circle><circle fill="#53BC6B" stroke="#53BC6B" stroke-width="2" r="15" cx="100" cy="100"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.2" /></circle><circle fill="#53BC6B" stroke="#53BC6B" stroke-width="2" r="15" cx="160" cy="100"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="0" /></circle></svg>
+      </div>
     </div>
   )
 }
