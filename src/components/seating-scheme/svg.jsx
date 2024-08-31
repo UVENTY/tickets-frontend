@@ -15,7 +15,7 @@ const log = () => {}
 const mapSeat = (node, cb, joinToSelector = '') =>
   Array.from(node.querySelectorAll(`.svg-seat${joinToSelector}`)).map(cb)
 
-const isTouch = isTouchDevice()
+const TOOLTIP_HEIGHT = 120
 
 const SvgScheme = forwardRef((props, outerRef) => {
   const [counters, setCounters] = useState([])
@@ -25,8 +25,16 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const { src, categories, cart, currency, highlight, tickets, viewport, toggleInCart } = props
   const ref = useRef(null)
   const refSelected = useRef(null)
+  const refTooltip = useRef(null)
   const { zoomIn } = useControls()
   useImperativeHandle(outerRef, () => ref.current)
+  
+  const viewportBounds = useRef(null)
+  useEffect(() => {
+    const node = document.querySelector('.react-transform-wrapper')
+    if (!node) return
+    viewportBounds.current = node.getBoundingClientRect()
+  }, [])
   
   const ticketsByCategory = useMemo(() => tickets.reduce((acc, ticket) => ({
     ...acc,
@@ -38,9 +46,16 @@ const SvgScheme = forwardRef((props, outerRef) => {
   const showSeatTooltip = el => {
     const { width, height, x, y } = ref.current.getBoundingClientRect()
     const elBounds = el.getBoundingClientRect()
-    let dx = ((elBounds.x - x) + elBounds.width)
-    let dy = ((elBounds.y - y) + elBounds.height)
+    const tooltipWidth = refTooltip.current?.clientWidth
+    const tooltipHeight = refTooltip.current?.clientHeight
+    const factorX = tooltipWidth >= elBounds.x ? tooltipWidth - elBounds.x - 10 : 0
+    const isCutDown = TOOLTIP_HEIGHT >= (viewportBounds.current.height + viewportBounds.current.y) - (elBounds.y + elBounds.height)
     const seat = svgSeat(el)
+    let dx = ((elBounds.x - x) + elBounds.width) + factorX
+    let dy = ((elBounds.y - y) + elBounds.height)
+    if (viewportBounds.current && factorX) {
+      dx += viewportBounds.current.x
+    }
 
     setTooltipSeat({
       visible: true,
@@ -48,7 +63,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
       y: `${(dy / height) * 100}%`,
       ticketId: seat.get('ticket-id'),
       text: seat.get('text'),
-      delay: null
+      delay: null,
+      isCutDown
     })
     Array.from(ref.current.querySelectorAll(`.${SEAT_CLASS_HIDDEN}`))
       .forEach(el => {
@@ -137,8 +153,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
     let timer = null
 
     Array.from(svg.attributes).forEach(({ name, value }) => ['width', 'height'].includes(name) ?
-      node.style[name] = 'auto' :
-      node.setAttribute(name, value))
+      node.style[name] = 'auto' : node.setAttribute(name, value)
+    )
     Array.from(svg.children).forEach(child => node.appendChild(child))
     Array.from(node.querySelectorAll('.svg-seat')).forEach(el => {
       const [category, row, num] = ['category', 'row', 'seat'].map(attr => el.getAttribute(`data-${attr}`))
@@ -154,15 +170,13 @@ const SvgScheme = forwardRef((props, outerRef) => {
         seat.set('ticket-id', seatTicket.id)
         const hasInCart = seat.isMultiple() ? seatTicket.some(ticket => ticket.inCart) : seatTicket.inCart
         seat.checked(hasInCart)
-        if (!seat.isMultiple()) {
+        if (!seat.isMultiple() && !isTouchDevice()) {
           const svgBound = ref.current.getBBox()
           el.addEventListener('mouseover', (e) => {
-            if (isTouch) return false
             timer && clearTimeout(timer)
             showSeatTooltip(el)
           })
           el.addEventListener('mouseout', (e) => {
-            if (isTouch) return false
             timer = setTimeout(() => {
               log('mouseout')
               log(el.tagName, el.getAttribute('class'), el.textContent)
@@ -238,7 +252,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
       const ticket = isMultiple && ticketsCat ? ticketsCat.find(item => !item.inCart) : tickets.find(t => t.id === el.id)
       
       if (ticket && !el.hasAttribute('data-disabled')) {
-        if (isTouch && !isMultiple) {
+        if (isTouchDevice() && !isMultiple) {
           showSeatTooltip(el)
         } else {
           toggleInCart(ticket)
@@ -330,7 +344,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           </div>
           
           {counters.map(({ category, ...counter }, i) => (
-            <KeepScale style={{ position: 'absolute', zIndex: 20, ...counter }}>
+            <KeepScale style={{ position: 'sticky', zIndex: 20, ...counter, left: 0, top: 0 }}>
               <TicketsCounter
                 key={i}
                 {...counter}
@@ -359,6 +373,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
               currency={currency}
               toggleInCart={toggleInCart}
               onToggle={() => log('toggle ticket with tooltip') || hideSeatTooltip(500)}
+              isCutDown={tooltipSeat.isCutDown}
+              ref={refTooltip}
             />}
           </KeepScale>
         </div>

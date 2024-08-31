@@ -10,7 +10,7 @@ import { useIsMobile } from 'utils/hooks'
 const bem = cn('seating-tooltip')
 
 const SeatingTooltip = forwardRef((props, ref) => {
-  const { visible, currency, onToggle = () => {} } = props
+  const { visible, currency, isCutDown, onToggle = () => {} } = props
   const isMobile = useIsMobile()
   // const [visible, setVisible] = useState(props.visible)
   let timer = useRef(null)
@@ -43,7 +43,7 @@ const SeatingTooltip = forwardRef((props, ref) => {
   return (
     <div
       id='seat-tooltip'
-      className={bem({ visible })}
+      className={bem({ visible, over: isCutDown })}
       style={{ left: props.x, top: props.y }}
       onClick={() => {
         props.toggleInCart(props, Number(!props.inCart))

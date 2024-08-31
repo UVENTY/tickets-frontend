@@ -28,6 +28,11 @@
     }
   }
 
+  &_over {
+    transition-property: left, top, opacity;
+    transform: translate(-100%, -115%);
+  }
+
   &-head {
     display: flex;
     align-items: flex-start;
