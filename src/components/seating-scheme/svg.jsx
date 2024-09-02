@@ -170,19 +170,21 @@ const SvgScheme = forwardRef((props, outerRef) => {
         seat.set('ticket-id', seatTicket.id)
         const hasInCart = seat.isMultiple() ? seatTicket.some(ticket => ticket.inCart) : seatTicket.inCart
         seat.checked(hasInCart)
-        if (!seat.isMultiple() && !isTouchDevice()) {
+        if (!seat.isMultiple()) {
           const svgBound = ref.current.getBBox()
           el.addEventListener('mouseover', (e) => {
             timer && clearTimeout(timer)
             showSeatTooltip(el)
           })
-          el.addEventListener('mouseout', (e) => {
-            timer = setTimeout(() => {
-              log('mouseout')
-              log(el.tagName, el.getAttribute('class'), el.textContent)
-              hideSeatTooltip()
-            }, 1000)
-          })
+          if (!isTouchDevice()) {
+            el.addEventListener('mouseout', (e) => {
+              timer = setTimeout(() => {
+                log('mouseout')
+                log(el.tagName, el.getAttribute('class'), el.textContent)
+                hideSeatTooltip()
+              }, 1000)
+            })
+          }
         }
       }
     })
