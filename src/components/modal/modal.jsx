@@ -6,7 +6,7 @@ import { BiLoaderCircle } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import { getFromLocalStorage, setLocalStorage } from "../../utils/common";
 import {
-  DISTRIBUTE_PAGE_URL, MODAL_WINDOW_PRIVACY_POLICY,
+  DISTRIBUTE_PAGE_URL, MODAL_WINDOW_OFFER, MODAL_WINDOW_PRIVACY_POLICY,
   STORAGE_KEY_PLACES_IN_ORDERS,
   STORAGE_KEY_REDIRECT,
   STORAGE_KEY_USER_EMAIL,
@@ -451,10 +451,15 @@ const CartModal = ({
                 <input type='checkbox' name='aggree' defaultChecked={userAcceptPrivacyPolicy} />
                 <CheckboxIcon style={{ color: (userAcceptPrivacyPolicy && correctUserData ? '#f8f5ec' : '#f8f5ec40'), transition: 'all 0.3s ease' }} />
                 <div style={{ color: (userAcceptPrivacyPolicy && correctUserData ? '#f8f5ec' : '#f8f5ec40'), transition: 'all 0.3s ease', fontSize: "9px" }}>
-                  By checking the box, you agree to&nbsp;
-                  <a href={MODAL_WINDOW_PRIVACY_POLICY}
-                    target={"_blank"}
-                    style={{ color: "inherit", textDecoration: 'underline' }}>Uventy privacy policy</a>
+                  By checking the box, you acknowledge and agree to the Uventy <a
+                    href={MODAL_WINDOW_PRIVACY_POLICY}
+                    target='_blank'
+                    style={{ color: "inherit", textDecoration: 'underline' }}
+                  >Privacy Policy</a> and <a
+                    href={MODAL_WINDOW_OFFER}
+                    target='_blank'
+                    style={{ color: "inherit", textDecoration: 'underline' }}
+                  >Offer Agreement</a>
                   .
                 </div>
               </label>

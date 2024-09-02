@@ -330,7 +330,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
             */}
           <div
             className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}
-            onPointerDown={(e) => log('overlay pointer down', e.target) || hideSeatTooltip(0)}>
+            onPointerDown={(e) => log('overlay pointer down', e.target) || hideSeatTooltip(0)}
+          >
             <svg
               ref={refSelected}
               fill='none'
@@ -344,7 +345,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
           </div>
           
           {counters.map(({ category, ...counter }, i) => (
-            <KeepScale style={{ position: 'sticky', zIndex: 20, ...counter, left: 0, top: 0 }}>
+            <KeepScale style={{ position: 'absolute', zIndex: 20, ...counter }}>
               <TicketsCounter
                 key={i}
                 {...counter}
