@@ -34,6 +34,10 @@
   width: 100% !important;
   height: 100% !important;
 
+  &:has(+ .scheme-overlay_visible) {
+    opacity: 0.5;
+  }
+
   /* @include bp(device) {
     & > g > * {
       transition: ease-in-out 2s filter;
@@ -166,7 +170,7 @@
   top: 0;
   bottom: 0;
   left: -100%;
-  background-color: #00000033;
+  // background-color: #00000033;
   backdrop-filter: blur(1.5px);
   opacity: 0;
   pointer-events: none;
