@@ -15,7 +15,7 @@ import { ReactComponent as IconArrow } from 'icons/arrow.svg'
 import { ReactComponent as IconArrowDouble } from 'icons/arrow_2_down.svg'
 import { clearCart, updateCart } from "api/cart";
 import { getEventQuery } from "api/event";
-import { useClickAway, useCountdown, useEventId, useIsMobile, useLocalStorage } from "utils/hooks";
+import { useClickOutside, useCountdown, useEventId, useIsMobile, useLocalStorage } from "utils/hooks";
 import { isEqualSeats } from "utils";
 import { getFromLocalStorage } from "utils/common";
 import { EMPTY_ARRAY, STORAGE_KEY_USER_EMAIL } from "const";
@@ -37,7 +37,11 @@ export default function Event() {
   const [cartModal, setCartModal] = useState(false)
   const [viewport, setViewport] = useState(null)
 
-  const ref = useClickAway(() => setSelectOpened(false))
+  const ref = useClickOutside((e) => {
+    console.log(e, ref);
+    
+    setSelectOpened(false)
+  })
   const cartRef = useRef(false)
   const schemeRef = useRef(null)
 

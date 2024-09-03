@@ -205,30 +205,16 @@ export const useCountdown = (timeToCount = 60 * 1000, interval = 1000) => {
   return [timeLeft, actions]
 }
 
-export function useClickAway(cb) {
+export const useClickOutside = (callback) => {
   const ref = useRef(null)
-  const refCb = useRef(cb)
-
-  useLayoutEffect(() => {
-    refCb.current = cb
-  })
 
   useEffect(() => {
-    const handler = (e) => {
-      const element = ref.current
-      if (element && !element.contains(e.target)) {
-        refCb.current(e)
-      }
+    const handleClick = (event) => {
+      ref.current && !ref.current.contains(event.target) && callback(event)
     }
-
-    document.addEventListener('mousedown', handler)
-    document.addEventListener('touchstart', handler)
-
-    return () => {
-      document.removeEventListener('mousedown', handler)
-      document.removeEventListener('touchstart', handler)
-    }
-  }, [])
+    document.addEventListener('click', handleClick, true)
+    return () => document.removeEventListener('click', handleClick, true)
+  }, [callback, ref])
 
   return ref
 }

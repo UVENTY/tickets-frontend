@@ -4,7 +4,6 @@ import { cn } from '@bem-react/classname'
 import classNames from 'classnames'
 import { CURRENCY_SYMBOL_MAP } from 'const'
 import './category-selector.scss'
-import { useClickAway } from 'utils/hooks'
 
 const bem = cn('category-selector')
 
@@ -41,7 +40,7 @@ export default function SelectCategory({
           style={option[valueKey] === value ?
             undefined : {
               top: i * 24 + 38 - (selectedIndex > i ? 0 : 24)
-            }
+            } 
           }
           onClick={() => onChange(option[valueKey])}
           onMouseOver={e => {

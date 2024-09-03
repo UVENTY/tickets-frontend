@@ -270,6 +270,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
     }
     hammer.on('tap', handleTap)
 
+
     return () => {
       hammer.off('tap', handleTap)
       hammer.destroy()
@@ -332,7 +333,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
             */}
           <div
             className={classNames('scheme-overlay', { ['scheme-overlay_visible']: !!activeSeat })}
-            onPointerDown={(e) => log('overlay pointer down', e.target) || hideSeatTooltip(0)}
+            onPointerDown={(e) => hideSeatTooltip(0)}
           >
             <svg
               ref={refSelected}
