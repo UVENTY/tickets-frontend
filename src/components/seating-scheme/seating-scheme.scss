@@ -55,6 +55,10 @@
   } */
 }
 
+.scheme-svg * {
+  will-change: transform;
+}
+
 /* @keyframes blurIn {
   0% {
     filter: blur(2px) brightness(0.7);
