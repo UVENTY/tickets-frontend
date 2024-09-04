@@ -24,11 +24,11 @@ const selectFlatArray = data =>
           const key = [category, row]
           const priceString = pricesList[isArray(seatOptions) ? seatOptions[0] : null]
           const [price, currency] = typeof priceString === 'string' ? priceString.split(' ') : []
-          const range = seat.split(';').map(Number).filter(Boolean)
-          if (range.length < 1) return
+          let range = seat.split(';').map(Number).filter(Boolean)
+          if (range.length < 1) range = [seat]
           Array.from(
             { length: range.length === 2 ? range[1] - range[0] + 1 : 1 },
-            (_, i) => i + range[0]
+            (_, i) => Number(range[0]) ? i + Number(range[0]) : range[0]
           ).forEach(seat => tickets.push({
             ...commonData,
             category,

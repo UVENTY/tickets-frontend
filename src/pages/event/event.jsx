@@ -38,13 +38,12 @@ export default function Event() {
   const [viewport, setViewport] = useState(null)
 
   const ref = useClickOutside((e) => {
-    console.log(e, ref);
-    
     setSelectOpened(false)
   })
   const cartRef = useRef(false)
   const schemeRef = useRef(null)
-
+  console.log(tickets);
+  
   useEffect(() => {
     const el = schemeRef.current
     if (!el) return

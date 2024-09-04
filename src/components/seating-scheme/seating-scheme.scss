@@ -39,38 +39,11 @@
       opacity: 0.5;
     }
   }
-
-  /* @include bp(device) {
-    & > g > * {
-      transition: ease-in-out 2s filter;
-    }
-  
-    // TODO Не работает на маке. Заменить логику, блюрить не элементы внутри свг,
-    // а выводить наложение с backdrop-filter: blur. Активнй кружок места выыводить
-    // поверх наожения за пределами свг
-    &:has(.svg-seat-clone) > g > * {
-      // filter: blur(2px) brightness(0.7);
-      filter: url(#filter-blur) brightness(70%);
-    }
-  } */
 }
 
 .scheme-svg * {
   will-change: transform;
 }
-
-/* @keyframes blurIn {
-  0% {
-    filter: blur(2px) brightness(0.7);
-  }
-  100% {
-    filter: blur(0) brightness(1);
-  }
-}
-
-.svg-seat-clone {
-  animation: blurIn 0.3s ease-in-out;
-} */
 
 .scheme-reset {
   position: absolute;
