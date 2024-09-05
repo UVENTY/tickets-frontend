@@ -42,7 +42,6 @@ export default function Event() {
   })
   const cartRef = useRef(false)
   const schemeRef = useRef(null)
-  console.log(tickets);
   
   useEffect(() => {
     const el = schemeRef.current
@@ -151,7 +150,7 @@ export default function Event() {
           toggleInCart={toggleInCart.mutate}
           setCartModal={setCartModal}
           fee={event?.fee * 1}
-          currency={event?.currency_sign}
+          currency={event?.currencySign}
         />}
       </div>
       {cartModal && (
