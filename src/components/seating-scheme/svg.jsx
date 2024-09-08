@@ -170,7 +170,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
         seat.set('ticket-id', seatTicket.id)
         const hasInCart = seat.isMultiple() ? seatTicket.some(ticket => ticket.inCart) : seatTicket.inCart
         seat.checked(hasInCart)
-        if (!seat.isMultiple()) {
+        if (!seat.isMultiple() && !seat.get('disabled')) {
           const svgBound = ref.current.getBBox()
           el.addEventListener('mouseover', (e) => {
             timer && clearTimeout(timer)
