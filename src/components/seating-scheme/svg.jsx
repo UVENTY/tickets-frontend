@@ -51,6 +51,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const factorX = tooltipWidth >= elBounds.x ? tooltipWidth - elBounds.x - 10 : 0
     const isCutDown = TOOLTIP_HEIGHT >= (viewportBounds.current.height + viewportBounds.current.y) - (elBounds.y + elBounds.height)
     const seat = svgSeat(el)
+    const unavailable = seat.disabled()
     let dx = ((elBounds.x - x) + elBounds.width) + factorX
     let dy = ((elBounds.y - y) + elBounds.height)
     if (viewportBounds.current && factorX) {
@@ -64,6 +65,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
       ticketId: seat.get('ticket-id'),
       text: seat.get('text'),
       delay: null,
+      seat,
+      unavailable,
       isCutDown
     })
     Array.from(ref.current.querySelectorAll(`.${SEAT_CLASS_HIDDEN}`))
@@ -164,27 +167,25 @@ const SvgScheme = forwardRef((props, outerRef) => {
         tickets.filter(item => item.category === category) :
         tickets.find(item => item.id === el.id)
 
-      if (!seatTicket || (Array.isArray(seatTicket) && !seatTicket.length)) {
-        el.setAttribute('data-disabled', '')
-      } else {
+      if (seatTicket) {
         seat.set('ticket-id', seatTicket.id)
         const hasInCart = seat.isMultiple() ? seatTicket.some(ticket => ticket.inCart) : seatTicket.inCart
         seat.checked(hasInCart)
-        if (!seat.isMultiple() && !seat.get('disabled')) {
-          const svgBound = ref.current.getBBox()
-          el.addEventListener('mouseover', (e) => {
-            timer && clearTimeout(timer)
-            showSeatTooltip(el)
+      }
+      if (!seat.isMultiple()) {
+        const svgBound = ref.current.getBBox()
+        el.addEventListener('mouseover', (e) => {
+          timer && clearTimeout(timer)
+          showSeatTooltip(el)
+        })
+        if (!isTouchDevice()) {
+          el.addEventListener('mouseout', (e) => {
+            timer = setTimeout(() => {
+              log('mouseout')
+              log(el.tagName, el.getAttribute('class'), el.textContent)
+              hideSeatTooltip()
+            }, 1000)
           })
-          if (!isTouchDevice()) {
-            el.addEventListener('mouseout', (e) => {
-              timer = setTimeout(() => {
-                log('mouseout')
-                log(el.tagName, el.getAttribute('class'), el.textContent)
-                hideSeatTooltip()
-              }, 1000)
-            })
-          }
         }
       }
     })
@@ -343,7 +344,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
               style={{ width: '100%', height: '100%' }}
             >
               {!!activeSeat && <MarkerTag {...markerProps} />}
-              {!!box && ticket.inCart && <use x={box.x + 1.5} y={box.y + 1.8} href="#checked-seat-path" />}
+              {!!box && ticket?.inCart && <use x={box.x + 1.5} y={box.y + 1.8} href="#checked-seat-path" />}
             </svg>
           </div>
           
@@ -378,6 +379,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
               toggleInCart={toggleInCart}
               onToggle={() => log('toggle ticket with tooltip') || hideSeatTooltip(500)}
               isCutDown={tooltipSeat.isCutDown}
+              unavailable={tooltipSeat.unavailable}
+              seat={tooltipSeat.seat}
               ref={refTooltip}
             />}
           </KeepScale>

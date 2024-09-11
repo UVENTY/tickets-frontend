@@ -10,35 +10,14 @@ import { useIsMobile } from 'utils/hooks'
 const bem = cn('seating-tooltip')
 
 const SeatingTooltip = forwardRef((props, ref) => {
-  const { visible, currency, isCutDown, onToggle = () => {} } = props
+  const { currency, visible, seat, isCutDown, onToggle = () => {} } = props
   const isMobile = useIsMobile()
-  // const [visible, setVisible] = useState(props.visible)
-  let timer = useRef(null)
-  // const ref = useRef(null)
-
-  // useEffect(() => {
-  //   const el = ref.current
-  //   if (!el) return
-  //   const { x } = el.getBoundingClientRect()
-  //   el.style.transform = `translateX(${x < 0 ? `calc(-100% - x)` : '-100%'}px)`
-  // }, [props])
-
-  /* useEffect(() => {
-    if (props.hideDelay) {
-      if (!props.visible) {
-        timer.current = setTimeout(() => setVisible(false), props.hideDelay)
-      } else if (timer.current) {
-        clearTimeout(timer.current)
-        setVisible(true)
-      }
-    } else {
-      setVisible(props.visible)
-    }
-  }, [props.visible]) */
-
-  const cat = props.categories.find((c) => c.value === props.category);
+  const category = seat?.get('category')
+  const disabled = seat?.disabled()
+  const cat = props.categories.find((c) => c.value === category);
   const svg = props.icon || cat?.icon;
   const color = props.color || cat?.color || "#fff";
+  let timer = useRef(null)
 
   return (
     <div
@@ -46,6 +25,7 @@ const SeatingTooltip = forwardRef((props, ref) => {
       className={bem({ visible, over: isCutDown })}
       style={{ left: props.x, top: props.y }}
       onClick={() => {
+        if (disabled) return
         props.toggleInCart(props, Number(!props.inCart))
         onToggle(Number(!props.inCart))
       }}
@@ -53,7 +33,9 @@ const SeatingTooltip = forwardRef((props, ref) => {
     >
       <div className={bem('head')}>
         <div className={bem('price')}>
-          {props?.price || '-'}&nbsp;{currency}
+          {disabled ? 'SOLD' : <>
+            {props?.price || '-'}&nbsp;{currency}
+          </>}
         </div>
         {!!svg && <div
           className={bem('icon')}
@@ -62,15 +44,15 @@ const SeatingTooltip = forwardRef((props, ref) => {
         />}
       </div>
       <div className={bem('desc')} style={{ color }}>
-        <div className={bem('category')}>{cat?.name || props.category}</div>
+        <div className={bem('category')}>{cat?.name || seat?.get('category')}</div>
         {!!props.text && <div className={bem('text')}>{props.text}</div>}
       </div>
       <div className={bem('seat')}>
         <div className={bem('row')}>
-          <span>Row:</span> {props.row}
+          <span>Row:</span> {seat?.get('row')}
         </div>
         <div className={bem('num')}>
-          <span>Seat:</span> {props.seat}
+          <span>Seat:</span> {seat?.get('seat')}
         </div>
       </div>
       <button
@@ -80,7 +62,9 @@ const SeatingTooltip = forwardRef((props, ref) => {
           borderColor: props.inCart ? color : undefined
         }}
       >
-        {props.inCart ? <><Selected style={{ width: 12 }} /> Selected</> : `${isMobile ? 'Tap' : 'Click'} to select`}
+        {disabled ? 'Unavailable' : <>
+          {props.inCart ? <><Selected style={{ width: 12 }} /> Selected</> : `${isMobile ? 'Tap' : 'Click'} to select`}
+        </>}
       </button>
     </div>
   )
