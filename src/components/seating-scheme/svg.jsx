@@ -4,7 +4,7 @@ import Hammer from 'hammerjs'
 import classNames from 'classnames'
 import { svgSeat } from 'utils/dom-scheme'
 import { createDefs, createStyles, stringToSvg } from './utils'
-import { SEAT_CLASS, SEAT_CLASS_HIDDEN, SEAT_CLONE_CLASS } from 'const'
+import { CHECK_PATH_ID, SEAT_CLASS, SEAT_CLASS_HIDDEN, SEAT_CLONE_CLASS } from 'const'
 import SeatingTooltip from 'components/seating-tooltip'
 import TicketsCounter from 'components/tickets-counter'
 import { isTouchDevice } from 'utils'
@@ -80,7 +80,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
     const activeObj = {
       Tag: el.tagName?.toLowerCase(),
       d: el.getAttribute('d'),
-      fill: color,
+      fill: seat.disabled() ? '#666' : color,
       stroke: color,
       strokeWidth: 0,
       viewBox,
@@ -346,7 +346,7 @@ const SvgScheme = forwardRef((props, outerRef) => {
               style={{ width: '100%', height: '100%' }}
             >
               {!!activeSeat && <MarkerTag {...markerProps} />}
-              {!!box && ticket?.inCart && <use x={box.x + 1.5} y={box.y + 1.8} href="#checked-seat-path" />}
+              {!!box && ticket?.inCart && <use x={box.x + 1.5} y={box.y + 1.8} href={`#${CHECK_PATH_ID}`} fill="red" />}
             </svg>
           </div>
           
