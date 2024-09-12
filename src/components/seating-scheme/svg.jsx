@@ -171,6 +171,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
         seat.set('ticket-id', seatTicket.id)
         const hasInCart = seat.isMultiple() ? seatTicket.some(ticket => ticket.inCart) : seatTicket.inCart
         seat.checked(hasInCart)
+      } else {
+        seat.disabled(true) 
       }
       if (!seat.isMultiple()) {
         const svgBound = ref.current.getBBox()
