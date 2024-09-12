@@ -61,14 +61,14 @@ export default function SelectCategory({
           <span className={bem('count')}>{!!option.count && `${option.count} left`}</span>
           {!!option.sale && <span className={bem('old_price')}>{option.sale}</span>}
           <span className={bem('price')}>
-            {!!price && (
+            {!!price ? (
               Array.isArray(price) ? <>
                 <span className='only-desktop'>from</span> {price[0]} {currency}&nbsp;
                 <span className={classNames(bem('price-del'), 'only-mobile')}>–</span>
                 <span className='only-desktop'>to</span> {price[1]} {currency}
               </> :
               [price, currency].filter(Boolean).join(' ')
-            )}
+            ) : 'SOLD OUT'}
           </span>
         </li>
       ))}

@@ -12,7 +12,7 @@ const InputNumber = ({
   style,
   ghost,
   className,
-  disabledInput,
+  disabledInput = true,
   ...rest
 }) => {
 
