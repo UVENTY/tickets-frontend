@@ -14,6 +14,39 @@ import SvgScheme from './svg'
 
 const SeatingScheme = forwardRef((props, ref) => {
   const svgRef = useRef(null)
+
+  // Добавляем обработчик колесика мыши
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0) { // Если происходит скролл
+        const seats = document.querySelectorAll('.svg-seat, .seat-path, path')
+        seats.forEach(seat => {
+          // Добавляем класс hovered при увеличении
+          if (e.deltaY < 0) { // Увеличение (скролл вверх)
+            seat.classList.add('hovered')
+          }
+          // Удаляем класс через небольшую задержку
+          setTimeout(() => {
+            seat.classList.remove('hovered')
+          }, 200)
+        })
+      }
+    }
+
+    // Добавляем слушатель события
+    const element = svgRef.current
+    if (element) {
+      element.addEventListener('wheel', handleWheel, { passive: true })
+    }
+
+    // Очистка при размонтировании
+    return () => {
+      if (element) {
+        element.removeEventListener('wheel', handleWheel)
+      }
+    }
+  }, [])
+
   const { src, cart, categories, currency, tickets, toggleInCart, highlight, selectedCategory, resetSelectedCategory, viewport } = props
   
   return (
@@ -23,6 +56,16 @@ const SeatingScheme = forwardRef((props, ref) => {
       initialScale={1}
       doubleClick={{
         disabled: true
+      }}
+      onZoom={({ state }) => {
+        // При зуме также добавляем эффект hover
+        const seats = document.querySelectorAll('.svg-seat, .seat-path, path')
+        seats.forEach(seat => {
+          seat.classList.add('hovered')
+          setTimeout(() => {
+            seat.classList.remove('hovered')
+          }, 200)
+        })
       }}
     >
       <SvgScheme

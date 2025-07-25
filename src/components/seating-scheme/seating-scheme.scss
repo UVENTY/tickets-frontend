@@ -34,6 +34,20 @@
   width: 100% !important;
   height: 100% !important;
 
+  path, 
+  .svg-seat,
+  .seat-path {
+    shape-rendering: geometricPrecision !important;
+    vector-effect: non-scaling-stroke !important;
+    transition: all 0.2s ease-out;
+    
+    &:hover,
+    &.hovered {  // Добавляем класс hovered
+      shape-rendering: geometricPrecision !important;
+      filter: brightness(1.1);
+    }
+  }
+
   @include bp(device) {
     &:has(+ .scheme-overlay_visible) {
       opacity: 0.5;
