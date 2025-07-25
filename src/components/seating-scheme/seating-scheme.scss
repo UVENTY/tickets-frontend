@@ -40,17 +40,32 @@
     shape-rendering: geometricPrecision !important;
     vector-effect: non-scaling-stroke !important;
     transition: all 0.2s ease-out;
+    transform: translateZ(0);
+    backface-visibility: hidden;
     
+    // Общие стили для всех устройств
     &:hover,
-    &.hovered {  // Добавляем класс hovered
+    &.hovered,
+    &:active {
       shape-rendering: geometricPrecision !important;
       filter: brightness(1.1);
+      will-change: transform;
+    }
+
+    // Специфичные стили для мобильных
+    @include bp(device) {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
   }
 
+  // Улучшаем отзывчивость на мобильных
   @include bp(device) {
-    &:has(+ .scheme-overlay_visible) {
-      opacity: 0.5;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    
+    * {
+      touch-action: manipulation;
     }
   }
 }
@@ -192,6 +207,10 @@
 
 .react-transform-component {
   touch-action: none;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .svg-seat {

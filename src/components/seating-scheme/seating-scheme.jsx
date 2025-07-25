@@ -1,48 +1,45 @@
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import classNames from 'classnames'
-import { KeepScale, TransformComponent, TransformWrapper, useTransformComponent } from 'react-zoom-pan-pinch'
-import { useDimensions } from 'utils/hooks'
-import SeatingTooltip from 'components/seating-tooltip'
-import Button from 'components/button'
-import { svgSeat } from 'utils/dom-scheme'
-import { createDefs, createStyles, getCursorOffsetToElementCenter, stringToSvg } from './utils'
-import './seating-scheme.scss'
-import { SEAT_CLONE_CLASS } from 'const'
-import TicketsCounter from 'components/tickets-counter/tickets-counter'
-import Controls from './controls'
+import { forwardRef, useEffect, useRef } from 'react'
+import { TransformWrapper } from 'react-zoom-pan-pinch'
 import SvgScheme from './svg'
+import Controls from './controls'
+import './seating-scheme.scss'
 
 const SeatingScheme = forwardRef((props, ref) => {
   const svgRef = useRef(null)
 
-  // Добавляем обработчик колесика мыши
+  const handleScale = () => {
+    const seats = document.querySelectorAll('.svg-seat, .seat-path, path')
+    seats.forEach(seat => {
+      seat.classList.add('hovered')
+      setTimeout(() => {
+        seat.classList.remove('hovered')
+      }, 200)
+    })
+  }
+
+  // Обработчик для всех событий масштабирования
   useEffect(() => {
-    const handleWheel = (e) => {
-      if (e.deltaY !== 0) { // Если происходит скролл
-        const seats = document.querySelectorAll('.svg-seat, .seat-path, path')
-        seats.forEach(seat => {
-          // Добавляем класс hovered при увеличении
-          if (e.deltaY < 0) { // Увеличение (скролл вверх)
-            seat.classList.add('hovered')
-          }
-          // Удаляем класс через небольшую задержку
-          setTimeout(() => {
-            seat.classList.remove('hovered')
-          }, 200)
-        })
+    const handleZoom = (e) => {
+      // Для колесика мыши
+      if (e.type === 'wheel' && e.deltaY < 0) {
+        handleScale()
+      }
+      // Для пинча на тачскрине
+      if (e.type === 'gesturechange' && e.scale > 1) {
+        handleScale()
       }
     }
 
-    // Добавляем слушатель события
     const element = svgRef.current
     if (element) {
-      element.addEventListener('wheel', handleWheel, { passive: true })
+      element.addEventListener('wheel', handleZoom, { passive: true })
+      element.addEventListener('gesturechange', handleZoom, { passive: true })
     }
 
-    // Очистка при размонтировании
     return () => {
       if (element) {
-        element.removeEventListener('wheel', handleWheel)
+        element.removeEventListener('wheel', handleZoom)
+        element.removeEventListener('gesturechange', handleZoom)
       }
     }
   }, [])
@@ -57,15 +54,12 @@ const SeatingScheme = forwardRef((props, ref) => {
       doubleClick={{
         disabled: true
       }}
-      onZoom={({ state }) => {
-        // При зуме также добавляем эффект hover
-        const seats = document.querySelectorAll('.svg-seat, .seat-path, path')
-        seats.forEach(seat => {
-          seat.classList.add('hovered')
-          setTimeout(() => {
-            seat.classList.remove('hovered')
-          }, 200)
-        })
+      onZoom={() => handleScale()}
+      // Добавляем обработку пинч-жестов
+      pinch={{
+        disabled: false,
+        scalePadding: 0.2,
+        velocityDisabled: true
       }}
     >
       <SvgScheme
