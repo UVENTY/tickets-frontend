@@ -37,8 +37,12 @@ export function createStyles(svg, categories) {
   const styles = createSvgElement('style')
   styles.innerHTML = categories.reduce(
     (acc, cat) => acc + `
-      .${SEAT_CLASS}[data-category="${cat.value}"] { fill: ${cat.color}; stroke: ${cat.color}; stroke-width: 0; transition: ease-out .3s; transition-property: stroke-width, fill; }
-      @media (hover: hover) { .${SEAT_CLASS}[data-category="${cat.value}"]:not([data-disabled]):hover { stroke-width: 2px; } }
+      .${SEAT_CLASS}[data-category="${cat.value}"] { fill: ${cat.color}; stroke: ${cat.color}; stroke-width: 0; transition: ease-out .3s; transition-property: stroke-width, fill, filter, opacity; }
+                        @media (hover: hover) { .${SEAT_CLASS}[data-category="${cat.value}"]:not([data-disabled]):hover { stroke-width: 2px; filter: brightness(1.10); } }
+                  /* Safari на Mac - осветление через opacity */
+                                      @supports not (filter: brightness(1.10)) { .${SEAT_CLASS}[data-category="${cat.value}"]:not([data-disabled]):hover { opacity: 1; } }
+                  /* Webkit-specific стили для Safari */
+                  @media screen and (-webkit-min-device-pixel-ratio: 0) { .${SEAT_CLASS}[data-category="${cat.value}"]:not([data-disabled]):hover { -webkit-filter: brightness(1.10); } }
       .${SEAT_CLASS}-icon-cat-${cat.value} { color: ${cat.color}; }
       .${SEAT_CLASS}-bg-cat-${cat.value} { background-color: ${cat.color}; }
     `,
@@ -65,4 +69,24 @@ export const getCursorOffsetToElementCenter = (element, event) => {
   const y = centerTop - clientY
 
   return { x, y }
+}
+
+// Функция для определения Safari на Mac
+export const isSafariOnMac = () => {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+  return isSafari && isMac
+}
+
+// Функция для применения затемнения в Safari
+export const applySafariHoverEffect = (element, isHovering) => {
+  if (isSafariOnMac()) {
+    if (isHovering) {
+      element.style.opacity = '1'
+      element.style.webkitFilter = 'brightness(1.3)'
+    } else {
+      element.style.opacity = '1'
+      element.style.webkitFilter = 'none'
+    }
+  }
 }

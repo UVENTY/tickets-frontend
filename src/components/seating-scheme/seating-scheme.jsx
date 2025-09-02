@@ -1,51 +1,53 @@
-import { forwardRef, useEffect, useRef } from 'react'
+import { forwardRef, useCallback, useEffect, useRef } from 'react';
 import { TransformWrapper } from 'react-zoom-pan-pinch'
-import SvgScheme from './svg'
-import Controls from './controls'
 import './seating-scheme.scss'
+import Controls from './controls'
+import SvgScheme from './svg'
 
 const SeatingScheme = forwardRef((props, ref) => {
-  const svgRef = useRef(null)
+  const svgRef = useRef(null);
+  const reflowTimeoutRef = useRef(null);
 
-  const handleScale = () => {
-    const seats = document.querySelectorAll('.svg-seat, .seat-path, path')
-    seats.forEach(seat => {
-      seat.classList.add('hovered')
-      setTimeout(() => {
-        seat.classList.remove('hovered')
-      }, 200)
-    })
-  }
+  // Эта функция использует "тяжелый" трюк для принудительной перерисовки SVG.
+  // Кратковременное изменение свойства `display` заставляет браузер полностью
+  // пересчитать геометрию и перерисовать элемент, что решает проблему с размытием.
+  // Этот метод более надежен, чем манипуляции с классами или трансформациями.
+  const forceSvgReflow = useCallback(() => {
+    if (!svgRef.current) return;
+    const svg = svgRef.current;
 
-  // Обработчик для всех событий масштабирования
+    // 1. Скрываем SVG. Это удаляет его из потока отрисовки.
+    svg.style.display = 'none';
+
+    // 2. Вызов getBoundingClientRect() заставляет браузер синхронно применить
+    //    изменение стиля 'display: none'. Это ключевая часть трюка.
+    svg.getBoundingClientRect();
+
+    // 3. Возвращаем SVG в DOM. Браузер вынужден перерисовать его с нуля, четко.
+    //    Пустая строка вернет свойство к значению из CSS.
+    svg.style.display = '';
+  }, []);
+
+  // Используем "дебаунс", чтобы функция перерисовки вызывалась только один раз
+  // после того,как пользователь закончил масштабирование.
+  const debouncedReflow = useCallback(() => {
+    if (reflowTimeoutRef.current) {
+      clearTimeout(reflowTimeoutRef.current);
+    }
+    reflowTimeoutRef.current = setTimeout(forceSvgReflow, 150);
+  }, [forceSvgReflow]);
+
+  // Очистка таймера при размонтировании
   useEffect(() => {
-    const handleZoom = (e) => {
-      // Для колесика мыши
-      if (e.type === 'wheel' && e.deltaY < 0) {
-        handleScale()
-      }
-      // Для пинча на тачскрине
-      if (e.type === 'gesturechange' && e.scale > 1) {
-        handleScale()
-      }
-    }
-
-    const element = svgRef.current
-    if (element) {
-      element.addEventListener('wheel', handleZoom, { passive: true })
-      element.addEventListener('gesturechange', handleZoom, { passive: true })
-    }
-
     return () => {
-      if (element) {
-        element.removeEventListener('wheel', handleZoom)
-        element.removeEventListener('gesturechange', handleZoom)
+      if (reflowTimeoutRef.current) {
+        clearTimeout(reflowTimeoutRef.current);
       }
     }
-  }, [])
+  }, []);
 
   const { src, cart, categories, currency, tickets, toggleInCart, highlight, selectedCategory, resetSelectedCategory, viewport } = props
-  
+
   return (
     <TransformWrapper
       minScale={0.8}
@@ -54,13 +56,8 @@ const SeatingScheme = forwardRef((props, ref) => {
       doubleClick={{
         disabled: true
       }}
-      onZoom={() => handleScale()}
-      // Добавляем обработку пинч-жестов
-      pinch={{
-        disabled: false,
-        scalePadding: 0.2,
-        velocityDisabled: true
-      }}
+      // onZoom срабатывает при любом масштабировании и запускает нашу функцию перерисовки.
+      onZoom={debouncedReflow}
     >
       <SvgScheme
         src={src}

@@ -51,8 +51,28 @@ export default function Event() {
   }, [])
 
   useLayoutEffect(() => {
-    const isDesktop = window.innerWidth > 1023
-    setSelectOpened(isDesktop)
+    // Принудительно открываем список категорий на десктопе
+    // Safari на Mac может иметь проблемы с определением размера экрана
+    const isDesktop = window.innerWidth > 1023 || 
+                     window.screen.width > 1023 || 
+                     !navigator.userAgent.includes('Mobile')
+    
+    // Дополнительная проверка для Safari на Mac
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+    
+    // На десктопе всегда открываем список
+    // Особенно для Safari на Mac
+    if (isDesktop || (isSafari && isMac && window.innerWidth > 768)) {
+      setSelectOpened(true)
+    }
+    
+    // Fallback: если через 100ms список все еще не открыт на десктопе, принудительно открываем
+    setTimeout(() => {
+      if (window.innerWidth > 1023 && !selectOpened) {
+        setSelectOpened(true)
+      }
+    }, 100)
   }, [])
   
   useEffect(() => {

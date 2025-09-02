@@ -24,6 +24,8 @@ export const createFilterElement = ({ id = 'filter-blur', blur = 1.2 }) => {
 
 export const createUse = (attrs) => {
   const el = document.createElementNS(xmlType, 'use')
+  // Генерируем уникальный ID для элемента
+  el.id = `use-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   Object.entries(attrs).forEach(([ attr, val ]) => {
     el.setAttribute(attr, val)
   })
@@ -53,8 +55,9 @@ export const svgSeat = (el, details = {}) => {
     has: (attribute) => el.hasAttribute(`data-${attribute}`),
     // Проверка наличия галочки у места (выводится если билет в корзине)
     hasCheck: () => {
-      const next = (seat.isMultiple() ? seat.getTitleNode() : el)?.nextElementSibling
-      return !!next && isEqualStr(next.tagName, 'use') && [`#${CHECK_PATH_ID}`, `#${CATEGORY_CHECK_PATH_ID}`].includes(next.getAttribute('href'))
+      // Проверяем, есть ли у элемента атрибут с ID галочки
+      const checkId = seat.isMultiple() ? CATEGORY_CHECK_PATH_ID : CHECK_PATH_ID
+      return el.hasAttribute(`data-check-${checkId}`)
     },
     // Добавить галочку, если ее нет
     addCheck: () => {
@@ -62,20 +65,57 @@ export const svgSeat = (el, details = {}) => {
       if (seat.isMultiple()) {
         const node = seat.getTitleNode()
         if (!node) return
-        const { x, y } = node.getBBox()
-        insertAfter(node, createUse({ x: x - 15, y: y + 6, class: 'category-check', href: `#${CATEGORY_CHECK_PATH_ID}` }))
+        const { x, y, width, height } = node.getBBox()
+        // Вычисляем центр элемента категории для позиционирования галочки
+        const centerX = x + width / 2
+        const centerY = y + height / 2
+        // Галочка для категории имеет размер 9x5.75 в SVG координатах, центрируем её
+        const checkX = centerX - (9 / 2) - 1 // Сдвигаем на 1 пиксель влево
+        const checkY = centerY - (5.75 / 2) - 2 // Поднимаем на 2 пикселя вверх
+        
+        const checkElement = createUse({ x: checkX, y: checkY, class: 'category-check', href: `#${CATEGORY_CHECK_PATH_ID}` })
+        // Вставляем галочку в конец SVG, чтобы она была поверх всех элементов
+        el.ownerSVGElement.appendChild(checkElement)
+        // Сохраняем ссылку на галочку в элементе места
+        el.setAttribute(`data-check-${CATEGORY_CHECK_PATH_ID}`, checkElement.id || `check-${Date.now()}`)
         el.style.cursor = 'auto'
       } else {
-        insertAfter(el, createUse({ x: x + 1.5, y: y + 1.8, class: 'seat-check', href: `#${CHECK_PATH_ID}` }))
+        // Получаем размеры и позицию места для центрирования галочки
+        const { x, y, width, height } = el.getBBox()
+        // Вычисляем центр места для позиционирования галочки
+        const centerX = x + width / 2
+        const centerY = y + height / 2
+        // Галочка имеет размер 4.5x3 в SVG координатах, центрируем её
+        const checkX = centerX - (4.5 / 2) - 1 // Сдвигаем на 1 пиксель влево
+        const checkY = centerY - (3 / 2) - 2 // Поднимаем на 2 пикселя вверх
+        
+        const checkElement = createUse({ x: checkX, y: checkY, class: 'seat-check', href: `#${CHECK_PATH_ID}` })
+        // Вставляем галочку в конец SVG, чтобы она была поверх всех элементов
+        el.ownerSVGElement.appendChild(checkElement)
+        // Сохраняем ссылку на галочку в элементе места
+        el.setAttribute(`data-check-${CHECK_PATH_ID}`, checkElement.id || `check-${Date.now()}`)
       }
       return seat
     },
     // Удалить галочку, если она есть
     removeCheck: () => {
       if (!seat.hasCheck()) return
-      const check = (seat.isMultiple() ? seat.getTitleNode() : el)?.nextElementSibling
-      check.classList.add('seat-check-out')
-      check.addEventListener('transitionend', () => check.remove())
+      
+      const checkId = seat.isMultiple() ? CATEGORY_CHECK_PATH_ID : CHECK_PATH_ID
+      const checkAttr = `data-check-${checkId}`
+      const checkElementId = el.getAttribute(checkAttr)
+      
+      if (checkElementId) {
+        // Ищем галочку по ID
+        const check = el.ownerSVGElement.querySelector(`#${checkElementId}`)
+        if (check) {
+          check.classList.add('seat-check-out')
+          check.addEventListener('transitionend', () => check.remove())
+        }
+        // Удаляем атрибут с ссылкой на галочку
+        el.removeAttribute(checkAttr)
+      }
+      
       if (seat.isMultiple()) el.removeAttribute('style')
       return seat
     },

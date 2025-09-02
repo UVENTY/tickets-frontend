@@ -34,38 +34,17 @@
   width: 100% !important;
   height: 100% !important;
 
-  path, 
-  .svg-seat,
-  .seat-path {
-    shape-rendering: geometricPrecision !important;
-    vector-effect: non-scaling-stroke !important;
-    transition: all 0.2s ease-out;
+  // Этот класс добавляется через JS во время масштабирования.
+  // Применение даже минимальной 3D-трансформации заставляет браузер
+  // задействовать GPU и принудительно перерисовать SVG из векторных данных,
+  // что убирает размытие. Это надежный и производительный трюк.
+  &.is-zooming {
     transform: translateZ(0);
-    backface-visibility: hidden;
-    
-    // Общие стили для всех устройств
-    &:hover,
-    &.hovered,
-    &:active {
-      shape-rendering: geometricPrecision !important;
-      filter: brightness(1.1);
-      will-change: transform;
-    }
-
-    // Специфичные стили для мобильных
-    @include bp(device) {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
   }
 
-  // Улучшаем отзывчивость на мобильных
   @include bp(device) {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    
-    * {
-      touch-action: manipulation;
+    &:has(+ .scheme-overlay_visible) {
+      opacity: 0.5;
     }
   }
 }
@@ -207,14 +186,10 @@
 
 .react-transform-component {
   touch-action: none;
-  transition: transform 0.1s ease-out;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
 .svg-seat {
-  transition: ease .3s color;
+  transition: ease .3s color, ease-out .3s filter, ease-out .3s opacity;
 
   &_mobile {
     &_hidden {
@@ -223,4 +198,24 @@
       }
     }
   }
+
+  &:not([data-disabled]):hover {
+    filter: brightness(1.10);
+    /* Safari на Mac - осветление */
+    opacity: 1;
+    /* Webkit-specific стили для Safari */
+    -webkit-filter: brightness(1.10);
+  }
+}
+
+/* Стили для галочек - должны быть поверх всех элементов места */
+.seat-check,
+.category-check {
+  pointer-events: none;
+}
+
+/* Дополнительная защита для SVG элементов галочек */
+use.seat-check,
+use.category-check {
+  /* Галочки теперь вставляются в конец SVG и отображаются поверх */
 }

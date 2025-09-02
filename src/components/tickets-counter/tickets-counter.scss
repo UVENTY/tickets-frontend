@@ -5,7 +5,7 @@
   transform: translateX(-50%);
   opacity: 0;
   transition: ease .3s;
-  transition-property: opacity, margin-top;
+  transition-property: opacity, margin-top, transform;
 }
 
 .svg-counter.visible {
@@ -13,4 +13,21 @@
   transform: translateX(-50%); 
   margin-top: 0;
   opacity: 1;
+}
+
+/* Когда каунтер не виден, убираем его далеко в сторону */
+.svg-counter:not(.visible) {
+  transform: translateX(-1000px);
+  pointer-events: none;
+}
+
+/* Когда каунтер виден, разрешаем события только на элементах ввода */
+.svg-counter.visible {
+  pointer-events: none;
+}
+
+.svg-counter.visible .input-number_group,
+.svg-counter.visible button,
+.svg-counter.visible input {
+  pointer-events: auto;
 }
