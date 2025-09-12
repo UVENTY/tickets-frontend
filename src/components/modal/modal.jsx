@@ -380,7 +380,7 @@ const CartModal = ({
               })}
             </div> */}
             <p className="w100 df aic jcsb" style={{ color: "#f8f5ec80" }}>
-              <span className="fs12">service fee {fee}%:</span>
+              <span className="fs12">service fee<span style={{ display: "none" }}>{fee}%</span>:</span>
               <i className="fs12">
                 <b>{t?.fee || 0} €</b>
               </i>

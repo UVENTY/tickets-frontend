@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.css",
+    "main.js": "/static/js/main.js",
+    "static/media/index.cjs": "/static/media/index.cjs",
+    "static/media/spinner-dots.svg": "/static/media/spinner-dots.58a70c8bcea620418e534f315604fcab.svg",
+    "static/media/ticket_logo.svg": "/static/media/ticket_logo.7622b143cbed1cd3d581dfc110bd6969.svg",
+    "static/media/checkbox.svg": "/static/media/checkbox.244b23b704ea121476b9ea96d581b0b8.svg",
+    "static/media/zoom-in.svg": "/static/media/zoom-in.9780ffd0d77c1873b5a726fc0b358d81.svg",
+    "static/media/zoom-out.svg": "/static/media/zoom-out.3a12432f57a92495d47e9a33aeb296f6.svg",
+    "static/media/reset.svg": "/static/media/reset.327975f911d667180c80b289f37bbf61.svg",
+    "static/media/clock.svg": "/static/media/clock.5f9b49897502a53d95963625b27e9c00.svg",
+    "static/media/arrow_2_down.svg": "/static/media/arrow_2_down.829e41f2cb32d80b7b8a8f471662e89f.svg",
+    "static/media/close.svg": "/static/media/close.7eb37d08e4d9f015212f51fa60bd4e40.svg",
+    "index.html": "/index.html",
+    "static/media/arrow.svg": "/static/media/arrow.e2b97c479aaed92c05ef61af52bf3afb.svg",
+    "static/media/selected.svg": "/static/media/selected.05ef8e8037dfdd666f1b6fa0849e5b89.svg",
+    "static/media/arrow_right.svg": "/static/media/arrow_right.5c8bd43e9627ee452809d7241888b381.svg",
+    "main.css.map": "/static/css/main.css.map",
+    "main.js.map": "/static/js/main.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.css",
+    "static/js/main.js"
+  ]
+}
