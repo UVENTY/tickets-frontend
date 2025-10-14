@@ -35,6 +35,8 @@ export default function Event() {
   const [highlightCat, setHighlightCat] = useState(null)
   const [orderExpanded, setOrderExpanded] = useState(false)
   const [cartModal, setCartModal] = useState(false)
+  const [promoCode, setPromoCode] = useState(null)
+  const [promoDiscount, setPromoDiscount] = useState(0)
   const [viewport, setViewport] = useState(null)
 
   const ref = useClickOutside((e) => {
@@ -107,6 +109,18 @@ export default function Event() {
   const handleClearCart = useCallback((queryKey) => {
     return clearCart().then(() => queryClient.resetQueries({ queryKey, exact: true }))
   }, [cart])
+
+  const handlePromoCodeApplied = useCallback((code, discount) => {
+    setPromoCode(code)
+    setPromoDiscount(discount || 0)
+  }, [])
+
+  const handleSetCartModal = useCallback((isOpen, promo = null) => {
+    setCartModal(isOpen)
+    if (promo) {
+      setPromoCode(promo)
+    }
+  }, [])
   
   return (
     <div className={bem('layout')}>
@@ -168,9 +182,11 @@ export default function Event() {
           categories={categories}
           cart={cartByCategory}
           toggleInCart={toggleInCart.mutate}
-          setCartModal={setCartModal}
+          setCartModal={handleSetCartModal}
           fee={event?.fee * 1}
           currency={event?.currencySign}
+          eventId={id}
+          onPromoCodeApplied={handlePromoCodeApplied}
         />}
       </div>
       {cartModal && (
@@ -183,6 +199,8 @@ export default function Event() {
           cartByCategory={cartByCategory}
           setOpen={setCartModal}
           clearCart={handleClearCart}
+          promocode={promoCode}
+          discount={promoDiscount}
         />
       )}
     </div>

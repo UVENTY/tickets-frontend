@@ -351,9 +351,8 @@ const SvgScheme = forwardRef((props, outerRef) => {
           </div>
           
           {counters.map(({ category, ...counter }, i) => (
-            <KeepScale style={{ position: 'absolute', zIndex: 20, ...counter }}>
+            <KeepScale key={`counter-${category}-${i}`} style={{ position: 'absolute', zIndex: 20, ...counter }}>
               <TicketsCounter
-                key={i}
                 {...counter}
                 onChange={value => handleChangeMultiple(value, tickets, category)}
               />

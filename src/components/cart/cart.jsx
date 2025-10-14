@@ -7,17 +7,20 @@ import { ReactComponent as Spinner } from 'icons/spinner-dots.svg'
 import { ReactComponent as Clear } from 'icons/close.svg'
 import Button from 'components/button'
 import InputNumber from 'components/input-number/input-number'
+import { CheckPromocode } from 'api/promocode'
 import './cart.scss'
 
 const bem = cn('cart')
 
-function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartModal, fee }) {
+function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartModal, fee, eventId, onPromoCodeApplied }) {
   const total = useMemo(() => Object.values(cart).reduce((acc, { sum }) => acc + sum, 0), [cart])
   const totalCount = useMemo(() => Object.values(cart).reduce((acc, { items }) => acc + items.length, 0), [cart])
   const isEmpty = !Object.values(cart).length
   const [promoCode, setPromoCode] = useState('')
   const [sendingPromo, setSendingPromo] = useState(false)
   const [promoCheckStatus, setPromoCheckStatus] = useState(null)
+  const [promoDiscount, setPromoDiscount] = useState(0)
+  const [validPromoCode, setValidPromoCode] = useState(null)
   
   const handleChangeMultiple = (count, tickets, cat) => {
     const catInCart = tickets.filter(item => item.category === cat && item.inCart)
@@ -32,14 +35,48 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
     }
   }
 
-  const handleSubmitPromo = useCallback(e => {
+  const handleSubmitPromo = useCallback(async (e) => {
     e.preventDefault()
+    if (!promoCode || isEmpty) return
+    
     setSendingPromo(true)
-    setTimeout(() => {
+    setPromoCheckStatus(null)
+    
+    try {
+      const response = await CheckPromocode(promoCode, totalCount)
+      
+      if (response && response.discount !== undefined) {
+        const { discount, schedule } = response
+        
+        // Проверяем что промокод подходит для этого события
+        if (schedule && schedule.includes(String(eventId))) {
+          setPromoCheckStatus(true)
+          setPromoDiscount(parseInt(discount) || 0)
+          setValidPromoCode(promoCode)
+          
+          // Передаем промокод родительскому компоненту
+          if (onPromoCodeApplied) {
+            onPromoCodeApplied(promoCode, parseInt(discount) || 0)
+          }
+        } else {
+          setPromoCheckStatus(false)
+          setPromoDiscount(0)
+          setValidPromoCode(null)
+        }
+      } else {
+        setPromoCheckStatus(false)
+        setPromoDiscount(0)
+        setValidPromoCode(null)
+      }
+    } catch (error) {
+      console.error('Promo code error:', error)
       setPromoCheckStatus(false)
+      setPromoDiscount(0)
+      setValidPromoCode(null)
+    } finally {
       setSendingPromo(false)
-    }, 1024)
-  }, [])
+    }
+  }, [promoCode, isEmpty, totalCount, eventId, onPromoCodeApplied])
   
   const feeAbs = (total * fee / 100).toFixed(2) * 1
 
@@ -102,7 +139,7 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
       </div>
       <div className={bem('form')}>
         <div className={bem('delimiter')} />
-        {/* <form className={bem('promo')} onSubmit={handleSubmitPromo}>
+        <form className={bem('promo')} onSubmit={handleSubmitPromo}>
           <input
             type='text'
             className={bem('input', { invalid: promoCheckStatus === false })}
@@ -111,6 +148,8 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
             onChange={e => {
               setPromoCode(e.target.value)
               setPromoCheckStatus(null)
+              setPromoDiscount(0)
+              setValidPromoCode(null)
             }}
           />
           <Clear
@@ -118,14 +157,16 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
             onClick={() => {
               setPromoCode('')
               setPromoCheckStatus(null)
+              setPromoDiscount(0)
+              setValidPromoCode(null)
             }}
           />
           <Button className={bem('applyPromo')} disabled={!promoCode || isEmpty || sendingPromo}>
             {sendingPromo ? <Spinner style={{ width: 24 }} /> : <ArrowRight style={{ width: 9 }} />}
           </Button>
-        </form> */}
+        </form>
         {promoCheckStatus !== null && <div className={bem('status-text', { success: promoCheckStatus })}>
-          {promoCheckStatus ? 'Valid' : 'Promo code is wrong!'}
+          {promoCheckStatus ? `Promo code applied! -${promoDiscount}%` : 'Promo code is wrong!'}
         </div>}
         <div className={bem('group')}>
           <div className={bem('summary')}>
@@ -137,9 +178,13 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
               <div className={bem('fee')}>service fee<span style={{ display: "none" }}>{fee}%</span>:</div>
               <div className={bem('fee')}>{feeAbs} {currency}</div>
             </div>}
+            {promoDiscount > 0 && <div className={bem('total')}>
+              <div className={bem('fee')} style={{ color: '#53bc6b' }}>Discount ({promoDiscount}%):</div>
+              <div className={bem('fee')} style={{ color: '#53bc6b' }}>-{((total * promoDiscount) / 100).toFixed(2)} {currency}</div>
+            </div>}
             <div className={bem('total')}>
               <div className={bem('cost')}>Total:</div>
-              <div className={bem('cost')}>{total + feeAbs} {currency}</div>
+              <div className={bem('cost')}>{(total + feeAbs - (total * promoDiscount / 100)).toFixed(2)} {currency}</div>
             </div>
           </div>
 
@@ -149,7 +194,7 @@ function Cart({ tickets, cart, categories, currency = '', toggleInCart, setCartM
             className={bem('submit')}
             onClick={e => {
               e.preventDefault()
-              setCartModal(true)
+              setCartModal(true, validPromoCode)
             }}
             disabled={isEmpty}
             type='button'

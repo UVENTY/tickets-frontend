@@ -44,7 +44,7 @@ export const calculateTotal = (data, percentage, discount) => {
   }, 0);
 
   const fee = (total / 100) * percentage;
-  const roundedFee = (Math.ceil(fee * 100) / 100).toFixed(2);
+  const roundedFee = fee.toFixed(2);
   const totalDiscount = (total / 100) * discount || 0;
 
   return {
@@ -65,6 +65,7 @@ const CartModal = ({
   cart,
   clearCart,
   cartByCategory = {},
+  promocode = null,
 }) => {
   const t = useMemo(() => calculateTotal(cart, fee, discount), [cart, fee, discount])
   const queryClient = useQueryClient()
@@ -144,7 +145,7 @@ const CartModal = ({
     }
     var places_in_orders = getFromLocalStorage(STORAGE_KEY_PLACES_IN_ORDERS, {})
 
-    CreateOrder(seats, SUCCEEDED_PAGE_URL)
+    CreateOrder(seats, SUCCEEDED_PAGE_URL, undefined, promocode)
       .then(({ data } = {}) => {
         const { payment, b_id } = data
         setLoad(false)
@@ -276,7 +277,7 @@ const CartModal = ({
 
             <div className="w100 df aic fww gap10 tags">
               {Object.values(cartByCategory).map(({ data, items }, i) => {
-                return <>
+                return <React.Fragment key={`category-${i}-${data?.value}`}>
                   {isDancefloorTypeCategory(items) ? <div>
                     <label
                       className="df aic gap8 fs12 tag"
@@ -328,7 +329,7 @@ const CartModal = ({
                         </label>)
                     })}
 
-                </>
+                </React.Fragment>
               })}
             </div>
             {/* <div className="w100 df aic fww gap10 tags">
@@ -479,7 +480,7 @@ const CartModal = ({
             <div className="modal-bottom-container">
               <div className="svg-info-container">
                 <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path className={"svg-info-icon-path"} d="M6.625 4.71204V7.21204M6.625 12.5557C3.5184 12.5557 1 10.0373 1 6.93066C1 3.82406 3.5184 1.30566 6.625 1.30566C9.7316 1.30566 12.25 3.82406 12.25 6.93066C12.25 10.0373 9.7316 12.5557 6.625 12.5557ZM6.65613 9.08704V9.14954L6.59387 9.14929V9.08704H6.65613Z" style={{ stroke: '#F8F5EC' }} stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                  <path className={"svg-info-icon-path"} d="M6.625 4.71204V7.21204M6.625 12.5557C3.5184 12.5557 1 10.0373 1 6.93066C1 3.82406 3.5184 1.30566 6.625 1.30566C9.7316 1.30566 12.25 3.82406 12.25 6.93066C12.25 10.0373 9.7316 12.5557 6.625 12.5557ZM6.65613 9.08704V9.14954L6.59387 9.14929V9.08704H6.65613Z" style={{ stroke: '#F8F5EC' }} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <span className={"modal-bottom-info-text"} style={{ color: '#F8F5EC' }}>
