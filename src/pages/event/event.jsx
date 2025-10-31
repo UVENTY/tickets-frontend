@@ -164,7 +164,7 @@ export default function Event() {
       <div
         className={classNames(
           bem('sidebar'),
-          bem('order', { expanded: orderExpanded })
+          bem('order', { expanded: !orderExpanded })
         )}
         ref={cartRef}
       >
